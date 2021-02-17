@@ -10,4 +10,26 @@ public class Product {
     private Float manufactureCost; //Поле не может быть null
     private UnitOfMeasure unitOfMeasure; //Поле не может быть null
     private Organization manufacturer; //Поле может быть null
+
+    public Product(String name,Coordinates coordinates,float price,Float manufactureCost,UnitOfMeasure unitOfMeasure){
+        this.name = name;
+        this.coordinates = coordinates;
+        this.price = price;
+        this.manufactureCost = manufactureCost;
+        this.unitOfMeasure = unitOfMeasure;
+        //this.manufacturer = manufacturer;
+    }
+
+    @Override
+    public String toString() {
+        return id+", "+
+               name+", "+
+               coordinates+", "+
+               creationDate+", "+
+               price+", "+
+               partNumber+", "+
+               manufactureCost+", "+
+               unitOfMeasure+", "+
+               manufacturer;
+    }
 }

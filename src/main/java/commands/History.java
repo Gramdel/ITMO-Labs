@@ -1,6 +1,6 @@
 package commands;
 
-import static core.Main.*;
+import static core.Main.history;
 
 public class History extends Command {
     public History(){
@@ -14,5 +14,9 @@ public class History extends Command {
         } else {
             System.out.println("Список выполненных комманд пуст!");
         }
+    }
+    @Override
+    public String description() {
+        return "Выводит последние 7 комманд. Синтаксис: history";
     }
 }

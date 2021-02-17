@@ -1,30 +1,35 @@
 package core;
 
-import commands.Command;
+import commands.*;
+
+import java.io.InputStream;
+import java.util.Map;
 import java.util.Scanner;
 
 public class Interpreter {
-    public static String read(){
-        Scanner in = new Scanner(System.in);
+
+    private static void executor(String com,String arg) {
+        if (Main.commands.containsValue(com)){
+            for (Map.Entry entry : Main.commands.entrySet()) {
+                if (entry.getValue().equals(com)) {
+                    ((Command) entry.getKey()).execute(arg);
+                }
+            }
+        } else {
+            System.out.println("Такой команды не существует! Список команд: help");
+        }
+    }
+
+    public static String read(InputStream stream){
+        Scanner in = new Scanner(stream);
         String s = "";
         while(s.equals("")) s = in.nextLine();
 
         String com = s.split(" ")[0];
         String arg = s.equals(com) ? "" : s.split(" ")[1];
-        s = com;
 
-        try{
-            if (Character.isLowerCase(com.charAt(0))){
-                com = com.substring(0,1).toUpperCase()+com.substring(1);
-                ((Command) Class.forName("commands."+com).newInstance()).execute(arg);
-            } else {
-                throw new ClassNotFoundException();
-            }
-        } catch(ClassNotFoundException | InstantiationException | IllegalAccessException | NoClassDefFoundError e) {
-            //e.printStackTrace();
-            System.out.println("Некорректный ввод, такой команды не существует!\n" +
-                    "Список команд: help");
-        }
-        return s;
+        executor(com,arg);
+
+        return com;
     }
 }

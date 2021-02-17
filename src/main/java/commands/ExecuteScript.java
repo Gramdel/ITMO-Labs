@@ -1,7 +1,7 @@
 package commands;
 
-public class Add extends Command {
-    public Add(){
+public class ExecuteScript extends Command {
+    public ExecuteScript(){
         super(true);
     }
     @Override

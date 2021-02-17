@@ -11,4 +11,8 @@ public class Clear extends Command {
         collection.clear();
         System.out.println("Комманда clear выполнена, коллекция очищена.");
     }
+    @Override
+    public String description() {
+        return "Очищает коллекцию. Синтаксис: clear";
+    }
 }

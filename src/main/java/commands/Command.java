@@ -6,4 +6,5 @@ public abstract class Command {
         this.isComplex = isComplex;
     }
     public abstract void execute(String arg);
+    public abstract String description();
 }
