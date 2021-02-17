@@ -9,8 +9,9 @@ public class Help extends Command {
     }
     @Override
     public void execute(String arg) {
-        for (Map.Entry entry : commands.entrySet())
-            System.out.println(entry.getValue()+" - "+((Command) entry.getKey()).description());
+        System.out.println("Список допустимых команд:");
+        for (Map.Entry<Command,String> entry : commands.entrySet())
+            System.out.println(entry.getValue()+" - "+entry.getKey().description());
     }
     @Override
     public String description() {

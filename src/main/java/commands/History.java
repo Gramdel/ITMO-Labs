@@ -1,8 +1,9 @@
 package commands;
 
-import static core.Main.history;
+import java.util.LinkedList;
 
 public class History extends Command {
+    public static LinkedList<String> history = new LinkedList<>();
     public History(){
         super(false);
     }

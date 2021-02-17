@@ -2,17 +2,21 @@ package core;
 
 import commands.*;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Scanner;
+
+import static commands.History.history;
 
 public class Interpreter {
 
     private static void executor(String com,String arg) {
         if (Main.commands.containsValue(com)){
-            for (Map.Entry entry : Main.commands.entrySet()) {
+            for (Map.Entry<Command,String> entry : Main.commands.entrySet()) {
                 if (entry.getValue().equals(com)) {
-                    ((Command) entry.getKey()).execute(arg);
+                    entry.getKey().execute(arg);
                 }
             }
         } else {
@@ -20,16 +24,23 @@ public class Interpreter {
         }
     }
 
-    public static String read(InputStream stream){
+    public static void read(InputStream stream) {
         Scanner in = new Scanner(stream);
-        String s = "";
-        while(s.equals("")) s = in.nextLine();
 
-        String com = s.split(" ")[0];
-        String arg = s.equals(com) ? "" : s.split(" ")[1];
+        String s;
+        while(in.hasNext()) {
+            s = in.nextLine();
 
-        executor(com,arg);
+            if (!s.equals("")) {
+                String com = s.split(" ")[0];
+                String arg = s.equals(com) ? "" : s.split(" ")[1];
+                executor(com, arg);
 
-        return com;
+                history.add(com);
+                if (history.size() > 7) history.remove();
+                if (history.peekLast().equals("exit")) break;
+            }
+        }
     }
+
 }
