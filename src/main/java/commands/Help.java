@@ -1,7 +1,7 @@
 package commands;
 
 import java.util.Map;
-import static core.Main.commands;
+import static core.Main.interpreter;
 
 public class Help extends Command {
     public Help(){
@@ -9,12 +9,18 @@ public class Help extends Command {
     }
     @Override
     public void execute(String arg) {
-        System.out.println("Список допустимых команд:");
-        for (Map.Entry<Command,String> entry : commands.entrySet())
-            System.out.println(entry.getValue()+" - "+entry.getKey().description());
+        if (rightArg(arg)){
+            System.out.println("Список допустимых команд:");
+            for (Map.Entry<Command,String> entry : interpreter.getCommands().entrySet())
+                System.out.println(entry.getValue()+" - "+entry.getKey().description());
+        }
     }
     @Override
     public String description() {
-        return "Выводит справку по доступным коммандам. Синтаксис: help";
+        return "Выводит справку по доступным коммандам."+syntax();
+    }
+    @Override
+    public String syntax() {
+        return " Синтаксис: help";
     }
 }
