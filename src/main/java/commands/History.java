@@ -11,7 +11,8 @@ public class History extends Command {
         if (rightArg(arg)){
             if (interpreter.getHistory().size()>0) {
                 System.out.println("Комманда history выполнена, последние 7 комманд:");
-                for (String s : interpreter.getHistory()) System.out.println(s);
+                for (String s : interpreter.getHistory())
+                    System.out.println("\t"+s);
             } else {
                 System.out.println("Список выполненных комманд пуст!");
             }

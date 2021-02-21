@@ -13,6 +13,6 @@ public enum OrganizationType {
                 }
             }
         }
-        throw new IllegalArgumentException("No such value");
+        throw new IllegalArgumentException();
     }
 }

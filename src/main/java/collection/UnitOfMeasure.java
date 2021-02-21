@@ -8,12 +8,12 @@ public enum UnitOfMeasure {
     MILLILITERS;
     public static UnitOfMeasure fromString(String s){
         if (s != null) {
-            for (UnitOfMeasure type : UnitOfMeasure.values()) {
-                if (s.equals(type.toString())) {
-                    return type;
+            for (UnitOfMeasure unit : UnitOfMeasure.values()) {
+                if (s.equals(unit.toString())) {
+                    return unit;
                 }
             }
         }
-        throw new IllegalArgumentException("No such value");
+        throw new IllegalArgumentException();
     }
 }

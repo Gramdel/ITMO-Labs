@@ -12,7 +12,7 @@ public class Help extends Command {
         if (rightArg(arg)){
             System.out.println("Список допустимых команд:");
             for (Map.Entry<Command,String> entry : interpreter.getCommands().entrySet())
-                System.out.println(entry.getValue()+" - "+entry.getKey().description());
+                System.out.println("\t"+entry.getValue()+" - "+entry.getKey().description());
         }
     }
     @Override

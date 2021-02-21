@@ -9,7 +9,7 @@ public class Main {
     public static IOUnit ioUnit = new IOUnit();
 
     public static void main(String[] args) {
-        //ioUnit.fromCSV("input.txt");
+        ioUnit.fromCSV("input.txt");
         System.out.println("TODO \n" + "Введите команду:");
         interpreter.fromStream(System.in);
     }
