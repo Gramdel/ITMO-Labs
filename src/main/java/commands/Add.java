@@ -4,6 +4,7 @@ import collection.*;
 
 import static core.Main.collection;
 import static core.Main.organizations;
+import static core.Main.interpreter;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,31 +30,27 @@ public class Add extends Command {
     private OrganizationType type; //manufacturer
 
     public Add(){
-        super(false);
+        super(!interpreter.stream.equals(System.in));
     }
 
     @Override
-    public void execute(String arg) {
+    public void execute(String[] args) {
         if (autoMode){
-            if (arg.matches("[^,]*(,[^,]*){10}")) {
-                String[] args = arg.split("[,;]", -1);
+            if (checkName(args[0]) & checkCoordinateX(args[1]) & checkCoordinateY(args[2]) &
+                    checkPrice(args[3]) & checkPartNumber(args[4]) & checkManufactureCost(args[5]) &
+                    checkUnitOfMeasure(args[6]) & checkName2(args[7]) & checkAnnualTurnover(args[8]) &
+                    checkEmployeesCount(args[9]) & checkType(args[10])) {
 
-                if (checkName(args[0]) & checkCoordinateX(args[1]) & checkCoordinateY(args[2]) &
-                        checkPrice(args[3]) & checkPartNumber(args[4]) & checkManufactureCost(args[5]) &
-                        checkUnitOfMeasure(args[6]) & checkName2(args[7]) & checkAnnualTurnover(args[8]) &
-                        checkEmployeesCount(args[9]) & checkType(args[10])) {
-
-                    collection.add(new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                            unitOfMeasure, chooseOrganization()));
-                } else {
-                    System.out.println("Элемент \"" + arg + "\" не добавлен из-за следующих ошибок ввода:");
-                    for (String error : errors)
-                        System.out.println("\t" + error);
-                }
-                errors.clear();
+                collection.add(new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
+                        unitOfMeasure, chooseOrganization()));
+            } else {
+                System.out.println("Элемент \"" + args + "\" не добавлен из-за следующих ошибок ввода:");
+                for (String error : errors)
+                    System.out.println("\t" + error);
             }
+            errors.clear();
             autoMode = false;
-        } else if (rightArg(arg)){
+        } else if (rightArg(args)){
 
             fieldSetter("Введите название продукта:","checkName");
             fieldSetter("Введите координату x (дробное число):","checkCoordinateX");

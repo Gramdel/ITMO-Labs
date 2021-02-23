@@ -7,17 +7,17 @@ public class Update extends Command{
         super(true);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             RemoveById removeById = new RemoveById();
             removeById.isCalledByUpdater();
-            int i = collection.size();
-            removeById.execute(arg);
-            if (collection.size()<i){
+            int prevSize = collection.size();
+            removeById.execute(args);
+            if (collection.size()<prevSize){
                 Add add = new Add();
-                add.isCalledByUpdater(Long.parseLong(arg));
-                add.execute("");
-                System.out.println("Элемент с id "+arg+" успешно обновлён!");
+                add.isCalledByUpdater(Long.parseLong(args[0]));
+                add.execute(new String[0]);
+                System.out.println("Элемент с id "+args[0]+" успешно обновлён!");
             }
         }
     }
@@ -33,10 +33,10 @@ public class Update extends Command{
     }
 
     @Override
-    protected boolean rightArg(String arg) {
-        if (super.rightArg(arg)) {
+    protected boolean rightArg(String[] args) {
+        if (super.rightArg(args)) {
             try {
-                Long.parseLong(arg);
+                Long.parseLong(args[0]);
                 return true;
             } catch (NumberFormatException e) {
                 System.out.println("Неправильный ввод id! Требуемый формат: положительное целое число.");

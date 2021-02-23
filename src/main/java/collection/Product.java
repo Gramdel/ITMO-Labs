@@ -1,5 +1,8 @@
 package collection;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
 import static core.Main.collection;
 
 public class Product {
@@ -17,6 +20,7 @@ public class Product {
         this.id = (long) collection.size() + 1;
         this.name = name;
         this.coordinates = coordinates;
+        this.creationDate = ZonedDateTime.now();
         this.price = price;
         this.partNumber = partNumber;
         this.manufactureCost = manufactureCost;
@@ -30,13 +34,17 @@ public class Product {
                "\tid = "+id+",\n"+
                "\tname = "+name+",\n"+
                "\tcoordinates = "+coordinates+",\n"+
-               "\tcreationDate = "+creationDate+",\n"+
+               "\tcreationDate = "+(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").format(creationDate))+",\n"+
                "\tprice = "+price+",\n"+
                "\tpartNumber = "+partNumber+",\n"+
                "\tmanufactureCost = "+manufactureCost+",\n"+
                "\tunitOfMeasure = "+unitOfMeasure+",\n"+
                "\tmanufacturer = "+manufacturer+"\n"+
-                "}";
+               "}";
+    }
+
+    public String toStringForCSV() {
+        return name+","+coordinates.toStringForCSV()+","+price+","+partNumber+","+manufactureCost+","+unitOfMeasure+","+manufacturer.toStringForCSV();
     }
 
     public String getPartNumber() {
@@ -49,5 +57,13 @@ public class Product {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UnitOfMeasure getUnitOfMeasure() {
+        return unitOfMeasure;
+    }
+
+    public Coordinates getCoordinates() {
+        return coordinates;
     }
 }

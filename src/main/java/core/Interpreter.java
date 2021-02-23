@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 public class Interpreter {
     private HashMap<Command, String> commands = new HashMap<>();
     private LinkedList<String> history = new LinkedList<>();
-    private InputStream stream;
+    public static InputStream stream = System.in;
 
     public Interpreter() {
         commands.put(new Add(), "add");
@@ -23,6 +23,9 @@ public class Interpreter {
         commands.put(new RemoveById(), "remove_by_id");
         commands.put(new Update(), "update");
         commands.put(new Info(), "info");
+        commands.put(new RemoveByUOM(), "remove_any_by_unit_of_measure");
+        commands.put(new FilterByManufacturer(), "filter_by_manufacturer");
+        commands.put(new Save(), "save");
     }
 
     public void fromStream(InputStream stream) {
@@ -42,9 +45,9 @@ public class Interpreter {
                     parts.add(m.group());
                 }
 
-                String com = parts.get(0);
-                String arg = "";
-                if (parts.size() > 1) arg = parts.size() > 2 ? null : parts.get(1);
+                String com = parts.remove(0);
+                String[] args = new String[parts.size()];
+                parts.toArray(args);
 
                 boolean script = com.equals("execute_script");
 
@@ -52,7 +55,7 @@ public class Interpreter {
                     for (Map.Entry<Command, String> entry : commands.entrySet()) {
                         if (entry.getValue().equals(com)) {
                             if (script) addToHistory(com);
-                            entry.getKey().execute(arg);
+                            entry.getKey().execute(args);
                             break;
                         }
                     }
@@ -79,9 +82,5 @@ public class Interpreter {
     private void addToHistory(String com){
         history.add(com);
         if (history.size() > 7) history.remove();
-    }
-
-    public InputStream getStream() {
-        return stream;
     }
 }

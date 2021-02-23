@@ -8,8 +8,8 @@ public class Help extends Command {
         super(false);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             System.out.println("Список допустимых команд:");
             for (Map.Entry<Command,String> entry : interpreter.getCommands().entrySet())
                 System.out.println("\t"+entry.getValue()+" - "+entry.getKey().description());

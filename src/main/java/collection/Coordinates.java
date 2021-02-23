@@ -13,4 +13,8 @@ public class Coordinates {
     public String toString() {
         return "{"+x+", "+y+"}";
     }
+
+    public String toStringForCSV() {
+        return x+","+y;
+    }
 }

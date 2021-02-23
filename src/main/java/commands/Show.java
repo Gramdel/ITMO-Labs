@@ -8,8 +8,8 @@ public class Show extends Command {
         super(false);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             if (collection.size()>0) {
                 System.out.println("Элементы коллекции:");
                 for (Product product : collection)

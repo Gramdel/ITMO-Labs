@@ -14,17 +14,17 @@ public class ExecuteScript extends Command {
         super(true);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             try {
-                BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src/main/resources/"+arg));
-                System.out.println("Скрипт из файла "+arg+" начинает выполняться...");
+                BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src/main/resources/"+args[0]));
+                System.out.println("Скрипт из файла "+args[0]+" начинает выполняться...");
 
-                scripts.push(arg);
+                scripts.push(args[0]);
                 interpreter.fromStream(stream);
-                if (interpreter.getStream().equals(System.in)) scripts.clear();
+                if (interpreter.stream.equals(System.in)) scripts.clear();
 
-                System.out.println("Скрипт из файла "+arg+" выполнен!");
+                System.out.println("Скрипт из файла "+args[0]+" выполнен!");
             } catch (FileNotFoundException e) {
                 System.out.println("Скрипт с таким именем не существует!");
             }
@@ -40,11 +40,14 @@ public class ExecuteScript extends Command {
     }
 
     @Override
-    protected boolean rightArg(String arg) {
-        if (scripts.contains(arg)) {
-            System.out.println("Скрипт "+arg+" вызывает сам себя!");
-            return false;
+    protected boolean rightArg(String[] args) {
+        if (super.rightArg(args)) {
+            if (scripts.contains(args[0])) {
+                System.out.println("Скрипт " + args[0] + " вызывает сам себя!");
+            } else {
+                return true;
+            }
         }
-        return super.rightArg(arg);
+        return false;
     }
 }

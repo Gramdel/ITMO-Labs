@@ -5,8 +5,8 @@ public class Exit extends Command{
         super(false);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             System.out.println("Комманда exit выполнена, программа завершает работу.");
             System.exit(0);
         }

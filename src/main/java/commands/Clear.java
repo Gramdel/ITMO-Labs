@@ -7,10 +7,10 @@ public class Clear extends Command {
         super(false);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             collection.clear();
-            System.out.println("Комманда clear выполнена, коллекция очищена.");
+            System.out.println("Коллекция очищена.");
         }
     }
     @Override

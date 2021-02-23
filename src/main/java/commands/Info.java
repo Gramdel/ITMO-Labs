@@ -10,22 +10,22 @@ public class Info extends Command {
         super(false);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             System.out.println("Тип коллекции:");
             System.out.println(collection.getClass());
             System.out.println("Дата инициализации коллекции:");
-            System.out.println(new SimpleDateFormat("dd.MM.yyyy k:mm").format(Main.getDate()));
+            System.out.println(new SimpleDateFormat("dd.MM.yyyy HH:mm").format(Main.getDate()));
             System.out.println("Количество элементов коллекции:");
             System.out.println(collection.size());
         }
     }
     @Override
     public String description() {
-        return "Очищает коллекцию."+syntax();
+        return "Выводит информацию о коллекции."+syntax();
     }
     @Override
     public String syntax() {
-        return " Синтаксис: clear";
+        return " Синтаксис: info";
     }
 }

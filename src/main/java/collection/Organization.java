@@ -37,4 +37,7 @@ public class Organization {
     public String toString() {
         return "{"+id+", "+name+", "+annualTurnover+", "+employeesCount+", "+type+"}";
     }
+    public String toStringForCSV() {
+        return name+","+annualTurnover+","+employeesCount+","+type+"\n";
+    }
 }

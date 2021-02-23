@@ -7,8 +7,8 @@ public class History extends Command {
         super(false);
     }
     @Override
-    public void execute(String arg) {
-        if (rightArg(arg)){
+    public void execute(String[] args) {
+        if (rightArg(args)){
             if (interpreter.getHistory().size()>0) {
                 System.out.println("Комманда history выполнена, последние 7 комманд:");
                 for (String s : interpreter.getHistory())
