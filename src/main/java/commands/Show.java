@@ -10,9 +10,13 @@ public class Show extends Command {
     @Override
     public void execute(String arg) {
         if (rightArg(arg)){
-            System.out.println("Элементы коллекции:");
-            for (Product product : collection)
-                System.out.println(product);
+            if (collection.size()>0) {
+                System.out.println("Элементы коллекции:");
+                for (Product product : collection)
+                    System.out.println(product);
+            } else {
+                System.out.println("Коллекция пуста!");
+            }
         }
     }
     @Override

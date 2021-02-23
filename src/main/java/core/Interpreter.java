@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 public class Interpreter {
     private HashMap<Command, String> commands = new HashMap<>();
     private LinkedList<String> history = new LinkedList<>();
+    private InputStream stream;
 
     public Interpreter() {
         commands.put(new Add(), "add");
@@ -19,9 +20,15 @@ public class Interpreter {
         commands.put(new Help(), "help");
         commands.put(new ExecuteScript(), "execute_script");
         commands.put(new Show(), "show");
+        commands.put(new RemoveById(), "remove_by_id");
+        commands.put(new Update(), "update");
+        commands.put(new Info(), "info");
     }
 
     public void fromStream(InputStream stream) {
+        InputStream prevStream = this.stream;
+        this.stream = stream;
+
         Scanner in = new Scanner(stream);
 
         while (in.hasNext()) {
@@ -44,10 +51,7 @@ public class Interpreter {
                 if (commands.containsValue(com)) {
                     for (Map.Entry<Command, String> entry : commands.entrySet()) {
                         if (entry.getValue().equals(com)) {
-                            if (script) {
-                                if(!stream.equals(System.in)) ((ExecuteScript) entry.getKey()).setInner();
-                                addToHistory(com);
-                            }
+                            if (script) addToHistory(com);
                             entry.getKey().execute(arg);
                             break;
                         }
@@ -56,13 +60,12 @@ public class Interpreter {
                     System.out.println("Такой команды не существует! Список команд: help");
                 }
 
-                if(!script) {
-                    addToHistory(com);
-                }
+                if(!script) addToHistory(com);
             }
         }
 
         in.close();
+        this.stream = prevStream;
     }
 
     public HashMap<Command, String> getCommands() {
@@ -76,5 +79,9 @@ public class Interpreter {
     private void addToHistory(String com){
         history.add(com);
         if (history.size() > 7) history.remove();
+    }
+
+    public InputStream getStream() {
+        return stream;
     }
 }

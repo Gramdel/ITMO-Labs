@@ -1,6 +1,6 @@
 package commands;
 
-import static core.Main.*;
+import static core.Main.collection;
 
 public class Clear extends Command {
     public Clear(){

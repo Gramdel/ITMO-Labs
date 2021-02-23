@@ -9,7 +9,6 @@ import static core.Main.interpreter;
 
 public class ExecuteScript extends Command {
     private Stack<String> scripts = new Stack<>();
-    private boolean inner = false;
 
     public ExecuteScript(){
         super(true);
@@ -23,14 +22,13 @@ public class ExecuteScript extends Command {
 
                 scripts.push(arg);
                 interpreter.fromStream(stream);
-                if (!inner) scripts.clear();
+                if (interpreter.getStream().equals(System.in)) scripts.clear();
 
                 System.out.println("Скрипт из файла "+arg+" выполнен!");
             } catch (FileNotFoundException e) {
                 System.out.println("Скрипт с таким именем не существует!");
             }
         }
-        inner = false;
     }
     @Override
     public String description() {
@@ -48,8 +46,5 @@ public class ExecuteScript extends Command {
             return false;
         }
         return super.rightArg(arg);
-    }
-    public void setInner(){
-        inner = true;
     }
 }

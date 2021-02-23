@@ -3,6 +3,7 @@ package commands;
 import collection.*;
 
 import static core.Main.collection;
+import static core.Main.organizations;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,19 +11,18 @@ import java.util.Scanner;
 import java.util.Stack;
 
 public class Add extends Command {
+    private boolean calledByUpdater;
     private boolean autoMode = false;
     private Stack<String> errors = new Stack<>();
 
+    private Long id;
     private String name;
-
     private Double x; //coordinates
     private Long y; //coordinates
-
     private float price;
     private String partNumber;
     private Float manufactureCost;
     private UnitOfMeasure unitOfMeasure;
-
     private String name2; //manufacturer
     private Long annualTurnover; //manufacturer
     private Long employeesCount; //manufacturer
@@ -44,7 +44,7 @@ public class Add extends Command {
                         checkEmployeesCount(args[9]) & checkType(args[10])) {
 
                     collection.add(new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                            unitOfMeasure, new Organization(name2, annualTurnover, employeesCount, type)));
+                            unitOfMeasure, chooseOrganization()));
                 } else {
                     System.out.println("Элемент \"" + arg + "\" не добавлен из-за следующих ошибок ввода:");
                     for (String error : errors)
@@ -75,10 +75,12 @@ public class Add extends Command {
             }
             fieldSetter(s,"checkType");
 
-            collection.add(new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                    unitOfMeasure, new Organization(name2, annualTurnover, employeesCount, type)));
+            Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
+                    unitOfMeasure, chooseOrganization());
+            product.setId(id);
+            collection.add(product);
 
-            System.out.println("Элемент добавлен в коллекцию.");
+            if (!calledByUpdater) System.out.println("Элемент добавлен в коллекцию.");
         }
     }
 
@@ -94,6 +96,18 @@ public class Add extends Command {
 
     public void setAutoMode(){
         autoMode = true;
+    }
+
+    private Organization chooseOrganization(){
+        for (Organization o : organizations){
+            if (o.getName().equals(name2) && o.getAnnualTurnover().equals(annualTurnover) &&
+                    o.getEmployeesCount().equals(employeesCount) && o.getType().equals(type)) {
+                return o;
+            }
+        }
+        Organization organization = new Organization(name2, annualTurnover, employeesCount, type);
+        organizations.add(organization);
+        return organization;
     }
 
     private void fieldSetter(String message, String methodName){
@@ -245,5 +259,10 @@ public class Add extends Command {
             this.type = null;
         }
         return true;
+    }
+
+    public void isCalledByUpdater(Long id){
+        calledByUpdater = true;
+        this.id = id;
     }
 }
