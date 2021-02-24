@@ -6,7 +6,8 @@ public enum UnitOfMeasure {
     PCS,
     LITERS,
     MILLILITERS;
-    public static UnitOfMeasure fromString(String s){
+
+    public static UnitOfMeasure fromString(String s) {
         if (s != null) {
             for (UnitOfMeasure unit : UnitOfMeasure.values()) {
                 if (s.equals(unit.toString())) {
@@ -15,5 +16,13 @@ public enum UnitOfMeasure {
             }
         }
         throw new IllegalArgumentException();
+    }
+
+    public static String valueList() {
+        String s = "";
+        for (int i = 0; i < values().length; i++) {
+            s += values()[i] + ((i != values().length - 1) ? ", " : "");
+        }
+        return s;
     }
 }

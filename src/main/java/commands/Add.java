@@ -1,10 +1,12 @@
 package commands;
 
 import collection.*;
+import org.json.simple.parser.ParseException;
 
 import static core.Main.collection;
 import static core.Main.organizations;
 import static core.Main.interpreter;
+import static core.IOUnit.parseJson;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,54 +32,69 @@ public class Add extends Command {
     private OrganizationType type; //manufacturer
 
     public Add(){
-        super(!interpreter.stream.equals(System.in));
+        super(false);
     }
 
     @Override
     public void execute(String[] args) {
+        hasArgs = !interpreter.stream.equals(System.in);
         if (autoMode){
             if (checkName(args[0]) & checkCoordinateX(args[1]) & checkCoordinateY(args[2]) &
                     checkPrice(args[3]) & checkPartNumber(args[4]) & checkManufactureCost(args[5]) &
                     checkUnitOfMeasure(args[6]) & checkName2(args[7]) & checkAnnualTurnover(args[8]) &
                     checkEmployeesCount(args[9]) & checkType(args[10])) {
 
-                collection.add(new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                        unitOfMeasure, chooseOrganization()));
+                Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
+                        unitOfMeasure, chooseOrganization());
+
+                if (!interpreter.stream.equals(System.in)) {
+                    if (!calledByUpdater) System.out.println("Элемент добавлен в коллекцию!");
+                    else {
+                        product.setId(id);
+                        System.out.println("Элемент успешно обновлён!");
+                    }
+                }
+                collection.add(product);
             } else {
-                System.out.println("Элемент \"" + args + "\" не добавлен из-за следующих ошибок ввода:");
+                System.out.println("Элемент не " + (!calledByUpdater ? "добавлен" : "обновлён") + "из-за следующих ошибок ввода:");
                 for (String error : errors)
                     System.out.println("\t" + error);
+                errors.clear();
             }
-            errors.clear();
             autoMode = false;
         } else if (rightArg(args)){
+            if (args.length==1) {
+                try {
+                    Add add = new Add();
+                    add.setAutoMode();
+                    add.execute(parseJson(args[0]));
+                } catch (ParseException e) {
+                    System.out.println("Элемент не добавлен в коллекцию из-за ошибки в структуре JSON-строки.");
+                }
+            } else {
+                fieldSetter("Введите название продукта:","checkName");
+                fieldSetter("Введите координату x (дробное число):","checkCoordinateX");
+                fieldSetter("Введите координату y (целое число):","checkCoordinateY");
+                fieldSetter("Введите цену продукта (целое положительное число):","checkPrice");
+                fieldSetter("Введите код производителя (#xxxxxx, где x - цифры):","checkPartNumber");
+                fieldSetter("Введите цену производства продукта (целое положительное число):","checkManufactureCost");
+                fieldSetter("Введите единицу измерения ("+UnitOfMeasure.valueList()+"):","checkUnitOfMeasure");
+                fieldSetter("Введите название компании-производителя:","checkName2");
+                fieldSetter("Введите годовой оборот компании-производителя (пустая строка или целое положительное число):","checkAnnualTurnover");
+                fieldSetter("Введите количество сотрудников компании-производителя (пустая строка или целое положительное число):","checkEmployeesCount");
+                fieldSetter("Введите тип компании-производителя (пустая строка, "+OrganizationType.valueList()+"):","checkType");
 
-            fieldSetter("Введите название продукта:","checkName");
-            fieldSetter("Введите координату x (дробное число):","checkCoordinateX");
-            fieldSetter("Введите координату y (целое число):","checkCoordinateY");
-            fieldSetter("Введите цену продукта (целое положительное число):","checkPrice");
-            fieldSetter("Введите код производителя (#xxxxxx, где x - цифры):","checkPartNumber");
-            fieldSetter("Введите цену производства продукта (целое положительное число):","checkManufactureCost");
-            String s = "Введите единицу измерения (";
-            for (int i = 0; i<UnitOfMeasure.values().length;i++){
-                s += UnitOfMeasure.values()[i] + ((i!=UnitOfMeasure.values().length-1) ? ", " : "):");
+                Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
+                        unitOfMeasure, chooseOrganization());
+
+                if (!calledByUpdater) System.out.println("Элемент добавлен в коллекцию!");
+                else {
+                    product.setId(id);
+                    System.out.println("Элемент успешно обновлён!");
+                }
+
+                collection.add(product);
             }
-            fieldSetter(s,"checkUnitOfMeasure");
-            fieldSetter("Введите название компании-производителя:","checkName2");
-            fieldSetter("Введите годовой оборот компании-производителя (пустая строка или целое положительное число):","checkAnnualTurnover");
-            fieldSetter("Введите количество сотрудников компании-производителя (пустая строка или целое положительное число):","checkEmployeesCount");
-            s = "Введите тип компании-производителя (пустая строка, ";
-            for (int i = 0; i<OrganizationType.values().length;i++){
-                s += OrganizationType.values()[i] + ((i!=OrganizationType.values().length-1) ? ", " : "):");
-            }
-            fieldSetter(s,"checkType");
-
-            Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                    unitOfMeasure, chooseOrganization());
-            product.setId(id);
-            collection.add(product);
-
-            if (!calledByUpdater) System.out.println("Элемент добавлен в коллекцию.");
         }
     }
 
@@ -88,7 +105,7 @@ public class Add extends Command {
 
     @Override
     public String syntax() {
-        return " Синтаксис: add";
+        return " Синтаксис: add \n(В скриптах - add element, где element - JSON-строка)";
     }
 
     public void setAutoMode(){
@@ -181,7 +198,7 @@ public class Add extends Command {
     private boolean checkManufactureCost(String manufactureCost){
         try {
             this.manufactureCost = Float.parseFloat(manufactureCost);
-            if (this.price<=0) throw new NumberFormatException();
+            if (this.manufactureCost<=0) throw new NumberFormatException();
         } catch(NumberFormatException e) {
             errors.push("Неправильный ввод цены производства продукта! Требуемый формат: положительное дробное число.");
             return false;
@@ -193,10 +210,7 @@ public class Add extends Command {
         try {
             this.unitOfMeasure = UnitOfMeasure.fromString(unitOfMeasure);
         } catch(IllegalArgumentException e) {
-            String s = "Неправильный ввод единиц измерения! Возможные варианты ввода: ";
-            for (int i = 0; i<UnitOfMeasure.values().length;i++){
-                s += UnitOfMeasure.values()[i] + ((i!=UnitOfMeasure.values().length-1) ? ", " : ".");
-            }
+            String s = "Неправильный ввод единиц измерения! Возможные варианты ввода: "+UnitOfMeasure.valueList()+".";
             errors.push(s);
             return false;
         }
@@ -245,10 +259,7 @@ public class Add extends Command {
             try {
                 this.type = OrganizationType.fromString(type);
             } catch (IllegalArgumentException e) {
-                String s = "Неправильный ввод типа компании-производителя! Возможные варианты ввода: пустая строка, ";
-                for (int i = 0; i<OrganizationType.values().length;i++){
-                    s += OrganizationType.values()[i] + ((i!=OrganizationType.values().length-1) ? ", " : ".");
-                }
+                String s = "Неправильный ввод типа компании-производителя! Возможные варианты ввода: пустая строка, "+OrganizationType.valueList()+".";
                 errors.push(s);
                 return false;
             }

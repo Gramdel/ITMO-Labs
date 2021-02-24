@@ -1,22 +1,26 @@
 package commands;
 
-import static core.Main.ioUnit;
+import static core.IOUnit.toCSV;
+import static core.Main.collectionFile;
 
 public class Save extends Command {
-    public Save(){
+    public Save() {
         super(false);
     }
+
     @Override
     public void execute(String[] args) {
-        if (rightArg(args)){
-            ioUnit.toCSV("input.txt");
+        if (rightArg(args)) {
+            toCSV(collectionFile);
             System.out.println("Коллекция сохранена.");
         }
     }
+
     @Override
     public String description() {
-        return "Сохраняет коллекцию."+syntax();
+        return "Сохраняет коллекцию." + syntax();
     }
+
     @Override
     public String syntax() {
         return " Синтаксис: save";

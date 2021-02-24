@@ -1,17 +1,17 @@
 package commands;
 
-import core.Main;
 import java.text.SimpleDateFormat;
-
+import core.Main;
 import static core.Main.collection;
 
 public class Info extends Command {
-    public Info(){
+    public Info() {
         super(false);
     }
+
     @Override
     public void execute(String[] args) {
-        if (rightArg(args)){
+        if (rightArg(args)) {
             System.out.println("Тип коллекции:");
             System.out.println(collection.getClass());
             System.out.println("Дата инициализации коллекции:");
@@ -20,10 +20,12 @@ public class Info extends Command {
             System.out.println(collection.size());
         }
     }
+
     @Override
     public String description() {
-        return "Выводит информацию о коллекции."+syntax();
+        return "Выводит информацию о коллекции." + syntax();
     }
+
     @Override
     public String syntax() {
         return " Синтаксис: info";

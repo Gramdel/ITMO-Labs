@@ -8,9 +8,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Interpreter {
+    public static InputStream stream = System.in;
     private HashMap<Command, String> commands = new HashMap<>();
     private LinkedList<String> history = new LinkedList<>();
-    public static InputStream stream = System.in;
 
     public Interpreter() {
         commands.put(new Add(), "add");
@@ -29,8 +29,8 @@ public class Interpreter {
     }
 
     public void fromStream(InputStream stream) {
-        InputStream prevStream = this.stream;
-        this.stream = stream;
+        InputStream prevStream = Interpreter.stream;
+        Interpreter.stream = stream;
 
         Scanner in = new Scanner(stream);
 
@@ -38,16 +38,29 @@ public class Interpreter {
             String s = in.nextLine();
 
             if (!s.matches("\\s*")) {
-                ArrayList<String> parts = new ArrayList<>();
+                String com;
+                String[] args;
 
-                Matcher m = Pattern.compile("[^\\s]+").matcher(s);
-                while (m.find()) {
-                    parts.add(m.group());
+                if (!stream.equals(System.in) && s.matches("\\s*add\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *\\}")) {
+                    com = "add";
+                    args = new String[1];
+                    args[0] = s.replaceFirst("\\s*add\\s+", "");
+                } else if (!stream.equals(System.in) && s.matches("\\s*update\\s+\\d+\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *\\}")) {
+                    com = "update";
+                    args = s.replaceFirst("\\s*update\\s+", "").split("\\s", 2);
+                } else if (!stream.equals(System.in) && s.matches("\\s*filter_by_manufacturer\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){3} *\\}")) {
+                    com = "filter_by_manufacturer";
+                    args = new String[1];
+                    args[0] = s.replaceFirst("\\s*filter_by_manufacturer\\s+", "");
+                } else {
+                    ArrayList<String> parts = new ArrayList<>();
+                    Matcher m = Pattern.compile("[^\\s]+").matcher(s);
+                    while (m.find()) parts.add(m.group());
+
+                    com = parts.remove(0);
+                    args = new String[parts.size()];
+                    parts.toArray(args);
                 }
-
-                String com = parts.remove(0);
-                String[] args = new String[parts.size()];
-                parts.toArray(args);
 
                 boolean script = com.equals("execute_script");
 
@@ -63,12 +76,12 @@ public class Interpreter {
                     System.out.println("Такой команды не существует! Список команд: help");
                 }
 
-                if(!script) addToHistory(com);
+                if (!script) addToHistory(com);
             }
         }
 
         in.close();
-        this.stream = prevStream;
+        Interpreter.stream = prevStream;
     }
 
     public HashMap<Command, String> getCommands() {
@@ -79,7 +92,7 @@ public class Interpreter {
         return history;
     }
 
-    private void addToHistory(String com){
+    private void addToHistory(String com) {
         history.add(com);
         if (history.size() > 7) history.remove();
     }
