@@ -56,7 +56,7 @@ public class Add extends Command {
                 }
                 collection.add(product);
             } else {
-                System.out.println("Элемент не " + (!calledByUpdater ? "добавлен" : "обновлён") + "из-за следующих ошибок ввода:");
+                System.out.println("Элемент не " + (!calledByUpdater ? "добавлен" : "обновлён") + " из-за следующих ошибок ввода:");
                 for (String error : errors)
                     System.out.println("\t" + error);
                 errors.clear();

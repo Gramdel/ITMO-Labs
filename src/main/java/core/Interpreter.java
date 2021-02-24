@@ -41,13 +41,18 @@ public class Interpreter {
                 String com;
                 String[] args;
 
-                if (!stream.equals(System.in) && s.matches("\\s*add\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *\\}")) {
-                    com = "add";
-                    args = new String[1];
-                    args[0] = s.replaceFirst("\\s*add\\s+", "");
-                } else if (!stream.equals(System.in) && s.matches("\\s*update\\s+\\d+\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *\\}")) {
-                    com = "update";
-                    args = s.replaceFirst("\\s*update\\s+", "").split("\\s", 2);
+                if (!stream.equals(System.in) && s.matches("\\s*\\w+\\s+(\\d+\\s+)?\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *\\}")) {
+                    Matcher m = Pattern.compile("[^\\s]+").matcher(s);
+                    m.find();
+                    com = m.group();
+                    m.find();
+                    s = s.replaceFirst("\\s*\\w+\\s+","");
+                    if(m.group().matches("\\d+")){
+                        args = s.split("\\s", 2);
+                    } else {
+                        args = new String[1];
+                        args[0] = s;
+                    }
                 } else if (!stream.equals(System.in) && s.matches("\\s*filter_by_manufacturer\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){3} *\\}")) {
                     com = "filter_by_manufacturer";
                     args = new String[1];
