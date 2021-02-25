@@ -16,6 +16,7 @@ import java.util.Stack;
 
 public class Add extends Command {
     private boolean calledByUpdater = false;
+    private boolean calledByRemover = false;
     private boolean autoMode = false;
     private boolean addIfMax = false;
     private Stack<String> errors = new Stack<>();
@@ -49,39 +50,39 @@ public class Add extends Command {
                 Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
                         unitOfMeasure, findOrganization());
 
-                if (!interpreter.stream.equals(System.in)) {
-                    if (!calledByUpdater) {
-                        if (addIfMax) {
-                            ArrayList<Product> sortedCollection = new ArrayList<>(collection);
-                            sortedCollection.sort(Product.byPriceComparator);
-                            if (sortedCollection.get(sortedCollection.size()-1).getPrice()>=product.getPrice()) {
-                                System.out.println("Элемент не добавлен в коллекцию, т.к. его цена не больше наибольшей цены элемента в коллекции.");
-                            } else {
-                                collection.add(product);
-                                System.out.println("Элемент добавлен в коллекцию, т.к. его цена больше наибольшей цены элемента в коллекции!");
-                            }
+                if (calledByUpdater) {
+                    product.setId(id);
+                    System.out.println("Элемент успешно обновлён!");
+                } else if (!calledByRemover) {
+                    if (addIfMax) {
+                        ArrayList<Product> sortedCollection = new ArrayList<>(collection);
+                        sortedCollection.sort(Product.byPriceComparator);
+                        if (sortedCollection.get(sortedCollection.size()-1).getPrice()>=product.getPrice()) {
+                            System.out.println("Элемент не добавлен в коллекцию, т.к. его цена не больше наибольшей цены элемента в коллекции.");
                         } else {
                             collection.add(product);
-                            System.out.println("Элемент добавлен в коллекцию!");
+                            System.out.println("Элемент добавлен в коллекцию, т.к. его цена больше наибольшей цены элемента в коллекции!");
                         }
                     } else {
-                        product.setId(id);
-                        System.out.println("Элемент успешно обновлён!");
+                        collection.add(product);
+                        if (!interpreter.stream.equals(System.in)) System.out.println("Элемент добавлен в коллекцию!");
                     }
+                } else {
+                    collection.add(product);
                 }
-                collection.add(product);
             } else {
-                System.out.println("Элемент " + (!calledByUpdater ? "не добавлен" : "c id "+id+" не обновлён") + " из-за следующих ошибок ввода:");
+                System.out.println("Элемент " + (!calledByUpdater ? (!calledByRemover ? "не добавлен" : "не может использоваться для сравнения") : "c id "+id+" не обновлён") + " из-за следующих ошибок ввода:");
                 for (String error : errors)
                     System.out.println("\t" + error);
                 errors.clear();
             }
             autoMode = false;
         } else if (rightArg(args)){
-            if (args.length==1) {
+            if (args.length>0) {
                 try {
                     Add add = new Add();
                     add.setAutoMode();
+                    if (calledByRemover) add.isCalledByRemover();
                     if (addIfMax) add.isAddIfMax();
                     add.execute(parseJson(args[0]));
                 } catch (ParseException e) {
@@ -103,7 +104,11 @@ public class Add extends Command {
                 Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
                         unitOfMeasure, findOrganization());
 
-                if (!calledByUpdater) {
+                if (calledByUpdater) {
+                    product.setId(id);
+                    System.out.println("Элемент c id "+id+" успешно обновлён!");
+                    collection.add(product);
+                } else if (!calledByRemover) {
                     if (addIfMax) {
                         ArrayList<Product> sortedCollection = new ArrayList<>(collection);
                         sortedCollection.sort(Product.byPriceComparator);
@@ -118,13 +123,12 @@ public class Add extends Command {
                         System.out.println("Элемент добавлен в коллекцию!");
                     }
                 } else {
-                    product.setId(id);
-                    System.out.println("Элемент c id "+id+" успешно обновлён!");
                     collection.add(product);
                 }
             }
         }
         calledByUpdater = false;
+        calledByRemover = false;
         addIfMax = false;
     }
 
@@ -302,8 +306,15 @@ public class Add extends Command {
         return true;
     }
 
-    public void isCalledByUpdater(Long id){
+    public void isCalledByUpdater(){
         calledByUpdater = true;
+    }
+
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    public void isCalledByRemover(){
+        calledByRemover = true;
     }
 }

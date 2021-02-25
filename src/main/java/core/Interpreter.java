@@ -28,6 +28,7 @@ public class Interpreter {
         commands.put(new Save(), "save");
         commands.put(new AddIfMax(), "add_if_max");
         commands.put(new PrintPrice(), "print_field_descending_price");
+        commands.put(new RemoveGreater(), "remove_greater");
     }
 
     public void fromStream(InputStream stream) {

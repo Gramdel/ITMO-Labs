@@ -1,5 +1,6 @@
 package commands;
 
+import static core.Main.collection;
 import static core.Main.interpreter;
 
 public class AddIfMax extends Command{
@@ -11,9 +12,13 @@ public class AddIfMax extends Command{
     public void execute(String[] args) {
         hasArgs = !interpreter.stream.equals(System.in);
         if (rightArg(args)) {
-            Add add = new Add();
-            add.isAddIfMax();
-            add.execute(args);
+            if (collection.size() > 0) {
+                Add add = new Add();
+                add.isAddIfMax();
+                add.execute(args);
+            } else {
+                System.out.println("Коллекция пуста, поэтому элемент не с чем сравнить!");
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 package commands;
 
+import collection.Product;
 import org.json.simple.parser.ParseException;
 
 import static core.IOUnit.parseJson;
@@ -20,9 +21,13 @@ public class Update extends Command {
             removeById.isCalledByUpdater();
             removeById.execute(args);
 
+            Product deletedElement = removeById.getDeletedElement();
+
             if (collection.size() < prevSize) {
+                prevSize = collection.size();
                 Add add = new Add();
-                add.isCalledByUpdater(Long.parseLong(args[0]));
+                add.isCalledByUpdater();
+                add.setId(Long.parseLong(args[0]));
                 if (!stream.equals(System.in)) {
                     try {
                         add.setAutoMode();
@@ -32,6 +37,9 @@ public class Update extends Command {
                     }
                 } else {
                     add.execute(new String[0]);
+                }
+                if (collection.size() == prevSize) {
+                    collection.add(deletedElement);
                 }
             }
         }
