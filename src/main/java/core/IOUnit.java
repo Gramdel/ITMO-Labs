@@ -2,6 +2,8 @@ package core;
 
 import collection.Product;
 import static core.Main.collection;
+import static core.Main.collectionFile;
+
 import commands.Add;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -30,9 +32,12 @@ public class IOUnit {
 
     public static void toCSV(String csv) {
         try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("src/main/resources/" + csv))) {
-            for (Product product : collection) {
+            ArrayList<Product> sortedCollection = new ArrayList<>(collection);
+            sortedCollection.sort(Product.byIdComparator);
+            for (Product product : sortedCollection) {
                 out.write(product.toStringForCSV().getBytes());
             }
+            System.out.println("Коллекция сохранена в файл "+collectionFile+"!");
         } catch (IOException e) {
             System.out.println("Коллекция не сохранена, так как файл для сохранения коллекции не найден.");
         }

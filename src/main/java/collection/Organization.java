@@ -40,8 +40,38 @@ public class Organization {
         }
 
         Organization o = (Organization) obj;
-        return name.equals(o.name) && annualTurnover.equals(o.annualTurnover) &&
-                employeesCount.equals(o.employeesCount) && type.equals(type);
+
+        if (annualTurnover == null) {
+            if (o.annualTurnover != null) {
+                return false;
+            }
+        } else {
+            if (o.annualTurnover == null || !annualTurnover.equals(o.annualTurnover)){
+                return false;
+            }
+        }
+
+        if (employeesCount == null) {
+            if (o.employeesCount != null) {
+                return false;
+            }
+        } else {
+            if (o.employeesCount == null || !employeesCount.equals(o.employeesCount)){
+                return false;
+            }
+        }
+
+        if (type == null) {
+            if (o.type != null) {
+                return false;
+            }
+        } else {
+            if (o.type == null || !type.equals(o.type)){
+                return false;
+            }
+        }
+
+        return name.equals(o.name);
     }
 
     @Override

@@ -4,8 +4,8 @@ import collection.Product;
 import java.util.ArrayList;
 import static core.Main.collection;
 
-public class Show extends Command {
-    public Show() {
+public class PrintPrice extends Command {
+    public PrintPrice() {
         super(false);
     }
 
@@ -13,11 +13,11 @@ public class Show extends Command {
     public void execute(String[] args) {
         if (rightArg(args)) {
             if (collection.size() > 0) {
-                System.out.println("Элементы коллекции:");
+                System.out.println("Цены продуктов в коллекции в порядке убывания:");
                 ArrayList<Product> sortedCollection = new ArrayList<>(collection);
-                sortedCollection.sort(Product.byIdComparator);
+                sortedCollection.sort(Product.byPriceComparator.reversed());
                 for (Product product : sortedCollection) {
-                    System.out.println(product);
+                    System.out.println("\t"+product.getPrice());
                 }
             } else {
                 System.out.println("Коллекция пуста!");
@@ -27,11 +27,11 @@ public class Show extends Command {
 
     @Override
     public String description() {
-        return "Выводит коллекцию." + syntax();
+        return "Выводит цены продуктов в коллекции в порядке убывания." + syntax();
     }
 
     @Override
     public String syntax() {
-        return " Синтаксис: show";
+        return " Синтаксис: print_field_descending_price";
     }
 }

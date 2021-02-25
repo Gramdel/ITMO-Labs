@@ -2,6 +2,7 @@ package collection;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 
 import static core.Main.collection;
 
@@ -55,6 +56,10 @@ public class Product implements Comparable<Product> {
         return id;
     }
 
+    public float getPrice() {
+        return price;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -71,4 +76,22 @@ public class Product implements Comparable<Product> {
     public int compareTo(Product product) {
         return this.creationDate.compareTo(product.creationDate);
     }
+
+    public static Comparator<Product> byIdComparator = new Comparator<Product>() {
+        @Override
+        public int compare(Product p1, Product p2) {
+            if (p1.id.equals(p2.id)) {
+                System.out.println("Что-то пошло не так: у двух продуктов один id!");
+                return 0;
+            }
+            return (p1.id < p2.id) ? -1 : 1;
+        }
+    };
+
+    public static Comparator<Product> byPriceComparator = new Comparator<Product>() {
+        @Override
+        public int compare(Product p1, Product p2) {
+            return Float.compare(p1.price, p2.price);
+        }
+    };
 }

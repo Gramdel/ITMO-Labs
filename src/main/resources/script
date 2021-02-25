@@ -1,2 +1,4 @@
-add {"name":"Докторская колбаса","x":"100.0","y":"1","price":"1.0","partNumber":"#123456","manufactureCost":"50.0","unitOfMeasure":"KILOGRAMS","name2":"Папа Может","annualTurnover":"","employeesCount":"","type":""}
+add {"name":"Докторская колбаса","x":"100.0","y":"1","price":"1.0","partNumber":"#123460","manufactureCost":"50.0","unitOfMeasure":"KILOGRAMS","name2":"Папа Может","annualTurnover":"","employeesCount":"","type":""}
 update 1 {"name":"Масло","x":"100.0","y":"1","price":"1.0","partNumber":"#123455","manufactureCost":"50.0","unitOfMeasure":"KILOGRAMS","name2":"Папа Может","annualTurnover":"10000000","employeesCount":"30000","type":"COMMERCIAL"}
+filter_by_manufacturer {"name2":"Папа Может","annualTurnover":"10000000","employeesCount":"30000","type":"COMMERCIAL"}
+add_if_max {"name":"Докторская колбаса","x":"100.0","y":"1","price":"9000","partNumber":"#123461","manufactureCost":"50.0","unitOfMeasure":"KILOGRAMS","name2":"Папа Может","annualTurnover":"","employeesCount":"","type":""}

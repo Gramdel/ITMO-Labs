@@ -19,11 +19,11 @@ public class RemoveById extends Command {
                 if (args[0].equals(Long.toString(iter.next().getId()))) {
                     iter.remove();
                     idNotExists = false;
-                    if (!calledByUpdater) System.out.println("Элемент успешно удалён!");
+                    if (!calledByUpdater) System.out.println("Элемент с id "+args[0]+" успешно удалён!");
                     break;
                 }
             }
-            if (idNotExists) System.out.println("В коллекции нет элемента с таким id!");
+            if (idNotExists) System.out.println("В коллекции нет элемента с id "+args[0]+"!");
         }
     }
 

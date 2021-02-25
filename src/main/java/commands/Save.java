@@ -12,7 +12,6 @@ public class Save extends Command {
     public void execute(String[] args) {
         if (rightArg(args)) {
             toCSV(collectionFile);
-            System.out.println("Коллекция сохранена.");
         }
     }
 

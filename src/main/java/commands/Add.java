@@ -10,12 +10,14 @@ import static core.IOUnit.parseJson;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Stack;
 
 public class Add extends Command {
-    private boolean calledByUpdater;
+    private boolean calledByUpdater = false;
     private boolean autoMode = false;
+    private boolean addIfMax = false;
     private Stack<String> errors = new Stack<>();
 
     private Long id;
@@ -45,18 +47,31 @@ public class Add extends Command {
                     checkEmployeesCount(args[9]) & checkType(args[10])) {
 
                 Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                        unitOfMeasure, chooseOrganization());
+                        unitOfMeasure, findOrganization());
 
                 if (!interpreter.stream.equals(System.in)) {
-                    if (!calledByUpdater) System.out.println("Элемент добавлен в коллекцию!");
-                    else {
+                    if (!calledByUpdater) {
+                        if (addIfMax) {
+                            ArrayList<Product> sortedCollection = new ArrayList<>(collection);
+                            sortedCollection.sort(Product.byPriceComparator);
+                            if (sortedCollection.get(sortedCollection.size()-1).getPrice()>=product.getPrice()) {
+                                System.out.println("Элемент не добавлен в коллекцию, т.к. его цена не больше наибольшей цены элемента в коллекции.");
+                            } else {
+                                collection.add(product);
+                                System.out.println("Элемент добавлен в коллекцию, т.к. его цена больше наибольшей цены элемента в коллекции!");
+                            }
+                        } else {
+                            collection.add(product);
+                            System.out.println("Элемент добавлен в коллекцию!");
+                        }
+                    } else {
                         product.setId(id);
                         System.out.println("Элемент успешно обновлён!");
                     }
                 }
                 collection.add(product);
             } else {
-                System.out.println("Элемент не " + (!calledByUpdater ? "добавлен" : "обновлён") + " из-за следующих ошибок ввода:");
+                System.out.println("Элемент " + (!calledByUpdater ? "не добавлен" : "c id "+id+" не обновлён") + " из-за следующих ошибок ввода:");
                 for (String error : errors)
                     System.out.println("\t" + error);
                 errors.clear();
@@ -67,6 +82,7 @@ public class Add extends Command {
                 try {
                     Add add = new Add();
                     add.setAutoMode();
+                    if (addIfMax) add.isAddIfMax();
                     add.execute(parseJson(args[0]));
                 } catch (ParseException e) {
                     System.out.println("Элемент не добавлен в коллекцию из-за ошибки в структуре JSON-строки.");
@@ -85,17 +101,31 @@ public class Add extends Command {
                 fieldSetter("Введите тип компании-производителя (пустая строка, "+OrganizationType.valueList()+"):","checkType");
 
                 Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
-                        unitOfMeasure, chooseOrganization());
+                        unitOfMeasure, findOrganization());
 
-                if (!calledByUpdater) System.out.println("Элемент добавлен в коллекцию!");
-                else {
+                if (!calledByUpdater) {
+                    if (addIfMax) {
+                        ArrayList<Product> sortedCollection = new ArrayList<>(collection);
+                        sortedCollection.sort(Product.byPriceComparator);
+                        if (sortedCollection.get(sortedCollection.size()-1).getPrice()>=product.getPrice()) {
+                            System.out.println("Элемент не добавлен в коллекцию, т.к. его цена не больше наибольшей цены элемента в коллекции.");
+                        } else {
+                            collection.add(product);
+                            System.out.println("Элемент добавлен в коллекцию, т.к. его цена больше наибольшей цены элемента в коллекции!");
+                        }
+                    } else {
+                        collection.add(product);
+                        System.out.println("Элемент добавлен в коллекцию!");
+                    }
+                } else {
                     product.setId(id);
-                    System.out.println("Элемент успешно обновлён!");
+                    System.out.println("Элемент c id "+id+" успешно обновлён!");
+                    collection.add(product);
                 }
-
-                collection.add(product);
             }
         }
+        calledByUpdater = false;
+        addIfMax = false;
     }
 
     @Override
@@ -105,23 +135,26 @@ public class Add extends Command {
 
     @Override
     public String syntax() {
-        return " Синтаксис: add \n(В скриптах - add element, где element - JSON-строка)";
+        return " Синтаксис: add \n\t\t(В скриптах - add {element}, где {element} - JSON-строка)";
     }
 
     public void setAutoMode(){
         autoMode = true;
     }
 
-    private Organization chooseOrganization(){
-        for (Organization o : organizations){
-            if (o.getName().equals(name2) && o.getAnnualTurnover().equals(annualTurnover) &&
-                    o.getEmployeesCount().equals(employeesCount) && o.getType().equals(type)) {
-                return o;
+    public void isAddIfMax(){
+        addIfMax = true;
+    }
+
+    private Organization findOrganization(){
+        Organization o1 = new Organization(name2, annualTurnover, employeesCount, type);
+        for (Organization o2 : organizations){
+            if (o1.equals(o2)) {
+                return o1;
             }
         }
-        Organization organization = new Organization(name2, annualTurnover, employeesCount, type);
-        organizations.add(organization);
-        return organization;
+        organizations.add(o1);
+        return o1;
     }
 
     private void fieldSetter(String message, String methodName){

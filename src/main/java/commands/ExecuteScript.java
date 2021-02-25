@@ -26,7 +26,7 @@ public class ExecuteScript extends Command {
 
                 System.out.println("Скрипт из файла " + args[0] + " выполнен!");
             } catch (FileNotFoundException e) {
-                System.out.println("Скрипт с таким именем не существует!");
+                System.out.println("Скрипт с именем " + args[0] + " не существует!");
             }
         }
     }

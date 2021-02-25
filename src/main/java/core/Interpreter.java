@@ -26,6 +26,8 @@ public class Interpreter {
         commands.put(new RemoveByUOM(), "remove_any_by_unit_of_measure");
         commands.put(new FilterByManufacturer(), "filter_by_manufacturer");
         commands.put(new Save(), "save");
+        commands.put(new AddIfMax(), "add_if_max");
+        commands.put(new PrintPrice(), "print_field_descending_price");
     }
 
     public void fromStream(InputStream stream) {

@@ -28,7 +28,7 @@ public class Update extends Command {
                         add.setAutoMode();
                         add.execute(parseJson(args[1]));
                     } catch (ParseException e) {
-                        System.out.println("Элемент не обновлён из-за ошибки в структуре JSON-строки.");
+                        System.out.println("Элемент c id "+args[0]+" не обновлён из-за ошибки в структуре JSON-строки.");
                     }
                 } else {
                     add.execute(new String[0]);
@@ -44,7 +44,7 @@ public class Update extends Command {
 
     @Override
     public String syntax() {
-        return " Синтаксис: update id, где id - целое положительное число. \n(В скриптах - update id element, где element - JSON-строка)";
+        return " Синтаксис: update id, где id - целое положительное число. \n\t\t(В скриптах - update id {element}, где {element} - JSON-строка)";
     }
 
     @Override
