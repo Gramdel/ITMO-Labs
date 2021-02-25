@@ -18,10 +18,10 @@ public enum OrganizationType {
     }
 
     public static String valueList() {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (int i = 0; i < values().length; i++) {
-            s += values()[i] + ((i != values().length - 1) ? ", " : "");
+            s.append(values()[i]).append((i != values().length - 1) ? ", " : "");
         }
-        return s;
+        return s.toString();
     }
 }

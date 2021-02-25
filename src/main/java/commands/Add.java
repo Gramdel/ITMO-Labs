@@ -1,11 +1,11 @@
 package commands;
 
 import collection.*;
+import core.Interpreter;
 import org.json.simple.parser.ParseException;
 
 import static core.Main.collection;
 import static core.Main.organizations;
-import static core.Main.interpreter;
 import static core.IOUnit.parseJson;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,7 +19,7 @@ public class Add extends Command {
     private boolean calledByRemover = false;
     private boolean autoMode = false;
     private boolean addIfMax = false;
-    private Stack<String> errors = new Stack<>();
+    private final Stack<String> errors = new Stack<>();
 
     private Long id;
     private String name;
@@ -40,7 +40,7 @@ public class Add extends Command {
 
     @Override
     public void execute(String[] args) {
-        hasArgs = !interpreter.stream.equals(System.in);
+        hasArgs = !Interpreter.stream.equals(System.in);
         if (autoMode){
             if (checkName(args[0]) & checkCoordinateX(args[1]) & checkCoordinateY(args[2]) &
                     checkPrice(args[3]) & checkPartNumber(args[4]) & checkManufactureCost(args[5]) &
@@ -65,7 +65,7 @@ public class Add extends Command {
                         }
                     } else {
                         collection.add(product);
-                        if (!interpreter.stream.equals(System.in)) System.out.println("Элемент добавлен в коллекцию!");
+                        if (!Interpreter.stream.equals(System.in)) System.out.println("Элемент добавлен в коллекцию!");
                     }
                 } else {
                     collection.add(product);

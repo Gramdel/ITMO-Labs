@@ -17,7 +17,7 @@ public class Main {
         collectionFile = args[0];
         date = new Date();
         IOUnit.fromCSV(args[0]);
-        System.out.println("TODO \n" + "Введите команду:");
+        System.out.println("Вас приветствует программа для управления коллекцией продуктов. Для получения списка команд введите help. \n" + "Введите команду:");
         interpreter.fromStream(System.in);
     }
 

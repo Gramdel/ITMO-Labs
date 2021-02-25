@@ -23,7 +23,7 @@ public class RemoveByUOM extends Command {
             }
 
             if (collection.size() < prevSize) {
-                System.out.println("Из коллекции удалён один из элементов с unitOfMeasure " + args[0] + ".");
+                System.out.println("С коллекции удалён один из элементов с unitOfMeasure " + args[0] + ".");
             } else {
                 System.out.println("В коллекции нет ни одного элемента с unitOfMeasure " + args[0] + "!");
             }

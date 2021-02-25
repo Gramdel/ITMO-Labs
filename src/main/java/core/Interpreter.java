@@ -9,8 +9,8 @@ import java.util.regex.Pattern;
 
 public class Interpreter {
     public static InputStream stream = System.in;
-    private HashMap<Command, String> commands = new HashMap<>();
-    private LinkedList<String> history = new LinkedList<>();
+    private final HashMap<Command, String> commands = new HashMap<>();
+    private final LinkedList<String> history = new LinkedList<>();
 
     public Interpreter() {
         commands.put(new Add(), "add");
@@ -44,7 +44,7 @@ public class Interpreter {
                 String com;
                 String[] args;
 
-                if (!stream.equals(System.in) && s.matches("\\s*\\w+\\s+(\\d+\\s+)?\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *\\}")) {
+                if (!stream.equals(System.in) && s.matches("\\s*\\w+\\s+(\\d+\\s+)?\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *}")) {
                     Matcher m = Pattern.compile("[^\\s]+").matcher(s);
                     m.find();
                     com = m.group();
@@ -56,7 +56,7 @@ public class Interpreter {
                         args = new String[1];
                         args[0] = s;
                     }
-                } else if (!stream.equals(System.in) && s.matches("\\s*filter_by_manufacturer\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){3} *\\}")) {
+                } else if (!stream.equals(System.in) && s.matches("\\s*filter_by_manufacturer\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){3} *}")) {
                     com = "filter_by_manufacturer";
                     args = new String[1];
                     args[0] = s.replaceFirst("\\s*filter_by_manufacturer\\s+", "");

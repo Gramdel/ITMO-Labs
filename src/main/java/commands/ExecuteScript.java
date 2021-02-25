@@ -1,5 +1,7 @@
 package commands;
 
+import core.Interpreter;
+
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -7,7 +9,7 @@ import java.util.Stack;
 import static core.Main.interpreter;
 
 public class ExecuteScript extends Command {
-    private Stack<String> scripts = new Stack<>();
+    private final Stack<String> scripts = new Stack<>();
 
     public ExecuteScript() {
         super(true);
@@ -22,7 +24,7 @@ public class ExecuteScript extends Command {
 
                 scripts.push(args[0]);
                 interpreter.fromStream(stream);
-                if (interpreter.stream.equals(System.in)) scripts.clear();
+                if (Interpreter.stream.equals(System.in)) scripts.clear();
 
                 System.out.println("Скрипт из файла " + args[0] + " выполнен!");
             } catch (FileNotFoundException e) {
@@ -33,7 +35,7 @@ public class ExecuteScript extends Command {
 
     @Override
     public String description() {
-        return "Исполняет скрипт из файла." + syntax();
+        return "Выполняет скрипт." + syntax();
     }
 
     @Override

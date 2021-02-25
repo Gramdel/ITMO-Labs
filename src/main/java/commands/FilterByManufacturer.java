@@ -3,6 +3,7 @@ package commands;
 import collection.Organization;
 import collection.OrganizationType;
 import collection.Product;
+import core.Interpreter;
 import org.json.simple.parser.ParseException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -10,11 +11,10 @@ import java.util.Scanner;
 import java.util.Stack;
 import static core.IOUnit.parseJson;
 import static core.Main.collection;
-import static core.Main.interpreter;
 
 public class FilterByManufacturer extends Command {
     private boolean autoMode = false;
-    private Stack<String> errors = new Stack<>();
+    private final Stack<String> errors = new Stack<>();
 
     private String name;
     private Long annualTurnover;
@@ -27,7 +27,7 @@ public class FilterByManufacturer extends Command {
 
     @Override
     public void execute(String[] args) {
-        hasArgs = !interpreter.stream.equals(System.in);
+        hasArgs = !Interpreter.stream.equals(System.in);
         if (autoMode) {
             if (checkName(args[0]) & checkAnnualTurnover(args[1]) & checkEmployeesCount(args[2]) & checkType(args[3])) {
                 findOrganization();

@@ -1,7 +1,7 @@
 package commands;
 
+import core.Interpreter;
 import static core.Main.collection;
-import static core.Main.interpreter;
 
 public class AddIfMax extends Command{
     public AddIfMax() {
@@ -10,7 +10,7 @@ public class AddIfMax extends Command{
 
     @Override
     public void execute(String[] args) {
-        hasArgs = !interpreter.stream.equals(System.in);
+        hasArgs = !Interpreter.stream.equals(System.in);
         if (rightArg(args)) {
             if (collection.size() > 0) {
                 Add add = new Add();
