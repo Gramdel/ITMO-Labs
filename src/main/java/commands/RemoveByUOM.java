@@ -2,31 +2,30 @@ package commands;
 
 import collection.Product;
 import collection.UnitOfMeasure;
-import static core.Main.collection;
+
+import java.util.ArrayList;
 import java.util.Iterator;
+import static core.Main.getCollection;
 
 public class RemoveByUOM extends Command {
     public RemoveByUOM() {
-        super(true);
+        super(1);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            int prevSize = collection.size();
-
-            for (Iterator<Product> iter = collection.iterator(); iter.hasNext(); ) {
-                if (args[0].equals(iter.next().getUnitOfMeasure().toString())) {
-                    iter.remove();
-                    break;
-                }
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        rightArg(args);
+        int prevSize = getCollection().size();
+        for (Iterator<Product> iter = getCollection().iterator(); iter.hasNext(); ) {
+            if (args.get(0).equals(iter.next().getUnitOfMeasure().toString())) {
+                iter.remove();
+                break;
             }
-
-            if (collection.size() < prevSize) {
-                System.out.println("С коллекции удалён один из элементов с unitOfMeasure " + args[0] + ".");
-            } else {
-                System.out.println("В коллекции нет ни одного элемента с unitOfMeasure " + args[0] + "!");
-            }
+        }
+        if (getCollection().size() < prevSize) {
+            throw new ExecuteException("С коллекции удалён один из элементов с unitOfMeasure " + args.get(0) + ".");
+        } else {
+            throw new ExecuteException("В коллекции нет ни одного элемента с unitOfMeasure " + args.get(0) + "!");
         }
     }
 
@@ -41,15 +40,12 @@ public class RemoveByUOM extends Command {
     }
 
     @Override
-    protected boolean rightArg(String[] args) {
-        if (super.rightArg(args)) {
-            try {
-                UnitOfMeasure.fromString(args[0]);
-                return true;
-            } catch (IllegalArgumentException e) {
-                System.out.println("Неправильный ввод единиц измерения! Возможные варианты ввода: " + UnitOfMeasure.valueList() + ".");
-            }
+    protected void rightArg(ArrayList<String> args) throws ExecuteException{
+        super.rightArg(args);
+        try {
+            UnitOfMeasure.fromString(args.get(0));
+        } catch (IllegalArgumentException e) {
+            throw new ExecuteException("Неправильный ввод единиц измерения! Возможные варианты ввода: " + UnitOfMeasure.valueList() + ".");
         }
-        return false;
     }
 }

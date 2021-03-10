@@ -1,19 +1,23 @@
 package commands;
 
+import collection.Product;
+
+import java.util.ArrayList;
+
 public abstract class Command {
-    protected boolean hasArgs;
-    public Command(boolean hasArgs){
-        this.hasArgs = hasArgs;
+    protected int argCount;
+    protected Product receivedProduct;
+    public Command(int argCount){
+        this.argCount = argCount;
     }
-    public abstract void execute(String[] args);
+    public abstract void execute (ArrayList<String> args, Command caller) throws ExecuteException;
     public abstract String description();
     public abstract String syntax();
-    protected boolean rightArg(String[] args){
-        boolean a = hasArgs ^ (args.length == 0);
-        if(!a) {
-            if (hasArgs) System.out.println("У этой комманды должен быть один аргумент." + syntax());
-            else System.out.println("У этой комманды не может быть аргументов." + syntax());
-        }
-        return a;
+    protected void rightArg(ArrayList<String> args) throws ExecuteException {
+        if(args.size() != argCount) throw new ExecuteException("У этой комманды должно быть " + argCount + " аргументов." + syntax());
+    }
+
+    public void setReceivedProduct(Product receivedProduct) {
+        this.receivedProduct = receivedProduct;
     }
 }

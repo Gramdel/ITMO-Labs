@@ -1,16 +1,19 @@
 package core;
 
 import commands.*;
+import org.json.simple.parser.ParseException;
 
 import java.io.InputStream;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static core.IOUnit.parseJson;
+
 public class Interpreter {
-    public static InputStream stream = System.in;
     private final HashMap<Command, String> commands = new HashMap<>();
     private final LinkedList<String> history = new LinkedList<>();
+    private Command caller = null;
 
     public Interpreter() {
         commands.put(new Add(), "add");
@@ -32,53 +35,42 @@ public class Interpreter {
     }
 
     public void fromStream(InputStream stream) {
-        InputStream prevStream = Interpreter.stream;
-        Interpreter.stream = stream;
-
         Scanner in = new Scanner(stream);
-
         while (in.hasNext()) {
             String s = in.nextLine();
 
             if (!s.matches("\\s*")) {
-                String com;
-                String[] args;
-
-                if (!stream.equals(System.in) && s.matches("\\s*\\w+\\s+(\\d+\\s+)?\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){10} *}")) {
-                    Matcher m = Pattern.compile("[^\\s]+").matcher(s);
-                    m.find();
-                    com = m.group();
-                    m.find();
-                    s = s.replaceFirst("\\s*\\w+\\s+","");
-                    if(m.group().matches("\\d+")){
-                        args = s.split("\\s", 2);
-                    } else {
-                        args = new String[1];
-                        args[0] = s;
-                    }
-                } else if (!stream.equals(System.in) && s.matches("\\s*filter_by_manufacturer\\s+\\{ *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"( *, *\"[^\"\\r\\n]*\" *: *\"[^\"\\r\\n]*\"){3} *}")) {
-                    com = "filter_by_manufacturer";
-                    args = new String[1];
-                    args[0] = s.replaceFirst("\\s*filter_by_manufacturer\\s+", "");
-                } else {
-                    ArrayList<String> parts = new ArrayList<>();
-                    Matcher m = Pattern.compile("[^\\s]+").matcher(s);
-                    while (m.find()) parts.add(m.group());
-
-                    com = parts.remove(0);
-                    args = new String[parts.size()];
-                    parts.toArray(args);
+                String jsonString = "";
+                if (!stream.equals(System.in) && s.matches("\\s*\\w+\\s+(\\d+\\s+)?\\{.*}")) {
+                    Matcher m = Pattern.compile("\\{.*}").matcher(s);
+                    if (m.find()) jsonString = m.group();
+                    s = s.replaceAll("\\{.*}", "");
                 }
+
+                ArrayList<String> args = new ArrayList<>();
+                Matcher m = Pattern.compile("[^\\s]+").matcher(s);
+                while (m.find()) args.add(m.group());
+                String com = args.remove(0);
 
                 boolean script = com.equals("execute_script");
 
                 if (commands.containsValue(com)) {
-                    for (Map.Entry<Command, String> entry : commands.entrySet()) {
-                        if (entry.getValue().equals(com)) {
-                            if (script) addToHistory(com);
-                            entry.getKey().execute(args);
-                            break;
+                    try {
+                        for (Map.Entry<Command, String> entry : commands.entrySet()) {
+                            if (entry.getValue().equals(com)) {
+                                if (script) addToHistory(com);
+                                if (!jsonString.isEmpty()) args.addAll(parseJson(jsonString));
+
+                                try {
+                                    entry.getKey().execute(args, caller);
+                                } catch (ExecuteException e) {
+                                    System.out.println(e.getMessage());
+                                }
+                                break;
+                            }
                         }
+                    } catch (ParseException e) {
+                        System.out.println("В структуре JSON-строки команды " + com + " содержится ошибка!");
                     }
                 } else {
                     System.out.println("Такой команды не существует! Список команд: help");
@@ -87,9 +79,7 @@ public class Interpreter {
                 if (!script) addToHistory(com);
             }
         }
-
-        in.close();
-        Interpreter.stream = prevStream;
+        caller = null;
     }
 
     public HashMap<Command, String> getCommands() {
@@ -103,5 +93,9 @@ public class Interpreter {
     private void addToHistory(String com) {
         history.add(com);
         if (history.size() > 7) history.remove();
+    }
+
+    public void setCaller(Command caller) {
+        this.caller = caller;
     }
 }

@@ -1,47 +1,42 @@
 package commands;
 
-import collection.Product;
-import org.json.simple.parser.ParseException;
-
-import static core.IOUnit.parseJson;
-import static core.Main.collection;
-import static core.Interpreter.stream;
+import java.util.ArrayList;
+import static core.Main.getCollection;
+import static core.Main.getOrganizations;
 
 public class Update extends Command {
     public Update() {
-        super(true);
+        super(1);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            int prevSize = collection.size();
-
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        if (caller != null) argCount = 12;
+        rightArg(args);
+        try {
             RemoveById removeById = new RemoveById();
-            removeById.isCalledByUpdater();
-            removeById.execute(args);
-
-            Product deletedElement = removeById.getDeletedElement();
-
-            if (collection.size() < prevSize) {
-                prevSize = collection.size();
-                Add add = new Add();
-                add.isCalledByUpdater();
-                add.setId(Long.parseLong(args[0]));
-                if (!stream.equals(System.in)) {
-                    try {
-                        add.setAutoMode();
-                        add.execute(parseJson(args[1]));
-                    } catch (ParseException e) {
-                        System.out.println("Элемент c id "+args[0]+" не обновлён из-за ошибки в структуре JSON-строки.");
-                    }
-                } else {
-                    add.execute(new String[0]);
-                }
-                if (collection.size() == prevSize) {
-                    collection.add(deletedElement);
-                }
+            removeById.hideSuccessMsg();
+            removeById.execute(new ArrayList<>(args.subList(0,1)), this);
+        } catch (ExecuteException e) {
+            throw new ExecuteException("Элемент не обновлён! "+e.getMessage());
+        }
+        try {
+            Add add = new Add();
+            add.hideSuccessMsg();
+            add.hideFailureMsg();
+            add.setId(receivedProduct.getId());
+            add.setCreationDate(receivedProduct.getCreationDate());
+            args.remove(0);
+            if (args.size()>0) {
+                add.execute(args, this);
+            } else {
+                add.execute(args, null);
             }
+            System.out.println("Элемент c id " + receivedProduct.getId() + " успешно обновлён!");
+        } catch (ExecuteException e) {
+            getCollection().add(receivedProduct);
+            if (!getOrganizations().contains(receivedProduct.getManufacturer())) getOrganizations().add(receivedProduct.getManufacturer());
+            throw new ExecuteException("Элемент c id " + receivedProduct.getId() + " не обновлён из-за следующих ошибок:"+e.getMessage());
         }
     }
 
@@ -56,15 +51,12 @@ public class Update extends Command {
     }
 
     @Override
-    protected boolean rightArg(String[] args) {
-        if (super.rightArg(args)) {
-            try {
-                Long.parseLong(args[0]);
-                return true;
-            } catch (NumberFormatException e) {
-                System.out.println("Неправильный ввод id! Требуемый формат: целое положительное число.");
-            }
+    protected void rightArg(ArrayList<String> args) throws ExecuteException {
+        super.rightArg(args);
+        try {
+            Long.parseLong(args.get(0));
+        } catch (NumberFormatException e) {
+            throw new ExecuteException("Неправильный ввод id! Требуемый формат: целое положительное число.");
         }
-        return false;
     }
 }

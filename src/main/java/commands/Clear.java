@@ -1,17 +1,22 @@
 package commands;
 
-import static core.Main.collection;
+import java.util.ArrayList;
+
+import static core.Main.getCollection;
 
 public class Clear extends Command {
     public Clear() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            collection.clear();
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        rightArg(args);
+        if(getCollection().size()>0) {
+            getCollection().clear();
             System.out.println("Коллекция очищена.");
+        } else {
+            throw new ExecuteException("Коллекция уже очищена!");
         }
     }
 

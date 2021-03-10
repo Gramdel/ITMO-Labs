@@ -1,21 +1,21 @@
 package commands;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-import static core.Main.interpreter;
+import static core.Main.getInterpreter;
 
 public class Help extends Command {
     public Help() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            System.out.println("Список допустимых команд:");
-            for (Map.Entry<Command, String> entry : interpreter.getCommands().entrySet())
-                System.out.println("\t" + entry.getValue() + " - " + entry.getKey().description());
-        }
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        rightArg(args);
+        System.out.println("Список допустимых команд:");
+        for (Map.Entry<Command, String> entry : getInterpreter().getCommands().entrySet())
+            System.out.println("\t" + entry.getValue() + " - " + entry.getKey().description());
     }
 
     @Override

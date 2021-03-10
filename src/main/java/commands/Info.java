@@ -1,24 +1,24 @@
 package commands;
 
 import java.text.SimpleDateFormat;
-import core.Main;
-import static core.Main.collection;
+import java.util.ArrayList;
+
+import static core.Main.*;
 
 public class Info extends Command {
     public Info() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            System.out.println("Тип коллекции:");
-            System.out.println(collection.getClass());
-            System.out.println("Дата инициализации коллекции:");
-            System.out.println(new SimpleDateFormat("dd.MM.yyyy HH:mm").format(Main.getDate()));
-            System.out.println("Количество элементов коллекции:");
-            System.out.println(collection.size());
-        }
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        rightArg(args);
+        System.out.println("Тип коллекции:");
+        System.out.println(getCollection().getClass());
+        System.out.println("Дата инициализации коллекции:");
+        System.out.println(new SimpleDateFormat("dd.MM.yyyy HH:mm").format(getDate()));
+        System.out.println("Количество элементов коллекции:");
+        System.out.println(getCollection().size());
     }
 
     @Override

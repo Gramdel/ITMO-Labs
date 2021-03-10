@@ -1,28 +1,35 @@
 package core;
 
 import collection.Product;
-import static core.Main.collection;
-import static core.Main.collectionFile;
 
 import commands.Add;
+import commands.ExecuteException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
+
+import static core.Main.*;
 
 public class IOUnit {
     public static void fromCSV(String csv) {
-        try (BufferedReader in = new BufferedReader(new FileReader("src/main/resources/" + csv))) {
-            Add add = new Add();
+        try (BufferedReader in = new BufferedReader(new FileReader(csv))) {
             String s;
             while ((s = in.readLine()) != null) {
                 if (s.matches("[^,]*(,[^,]*){10}")) {
-                    add.setAutoMode();
-                    add.execute(s.split("[,]", -1));
+                    ArrayList<String> args = new ArrayList<>(Arrays.asList(s.split("[,]", -1)));
+                    Add add = new Add();
+                    add.hideSuccessMsg();
+                    try {
+                        add.execute(args, add);
+                    } catch (ExecuteException e) {
+                        System.out.println(e.getMessage());
+                    }
                 }
             }
-            if (collection.size() == 0) {
+            if (getCollection().size() == 0) {
                 System.out.println("Коллекция не заполнена данными, так как файл коллекции не содержит ни одной корректной строки.");
             }
         } catch (IOException e) {
@@ -31,45 +38,48 @@ public class IOUnit {
     }
 
     public static void toCSV(String csv) {
-        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("src/main/resources/" + csv))) {
-            ArrayList<Product> sortedCollection = new ArrayList<>(collection);
+        try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(csv))) {
+            ArrayList<Product> sortedCollection = new ArrayList<>(getCollection());
             sortedCollection.sort(Product.byIdComparator);
             for (Product product : sortedCollection) {
                 out.write(product.toStringForCSV().getBytes());
             }
-            System.out.println("Коллекция сохранена в файл "+collectionFile+"!");
+            System.out.println("Коллекция сохранена в файл "+getCollectionFile()+"!");
         } catch (IOException e) {
             System.out.println("Коллекция не сохранена, так как файл для сохранения коллекции не найден.");
         }
     }
 
-    public static String[] parseJson(String s) throws ParseException {
+    public static ArrayList<String> parseJson(String s) throws ParseException {
         JSONObject o = (JSONObject) new JSONParser().parse(s);
-        ArrayList<String> values = new ArrayList<>();
+
+        if (o.size() != 4 && o.size() != 11) {
+            throw new ParseException(0);
+        }
+
+        ArrayList<String> args = new ArrayList<>();
 
         if (o.size() == 11) {
             if (o.containsKey("name") && o.containsKey("x") && o.containsKey("y") && o.containsKey("price")
                     && o.containsKey("partNumber") && o.containsKey("manufactureCost") && o.containsKey("unitOfMeasure")) {
-                values.add(o.get("name").toString());
-                values.add(o.get("x").toString());
-                values.add(o.get("y").toString());
-                values.add(o.get("price").toString());
-                values.add(o.get("partNumber").toString());
-                values.add(o.get("manufactureCost").toString());
-                values.add(o.get("unitOfMeasure").toString());
+                args.add(o.get("name").toString());
+                args.add(o.get("x").toString());
+                args.add(o.get("y").toString());
+                args.add(o.get("price").toString());
+                args.add(o.get("partNumber").toString());
+                args.add(o.get("manufactureCost").toString());
+                args.add(o.get("unitOfMeasure").toString());
             }
         }
         if (o.containsKey("name2") && o.containsKey("annualTurnover") && o.containsKey("employeesCount") && o.containsKey("type")) {
-            values.add(o.get("name2").toString());
-            values.add(o.get("annualTurnover").toString());
-            values.add(o.get("employeesCount").toString());
-            values.add(o.get("type").toString());
+            args.add(o.get("name2").toString());
+            args.add(o.get("annualTurnover").toString());
+            args.add(o.get("employeesCount").toString());
+            args.add(o.get("type").toString());
         }
 
-        if (values.size() != o.size()) throw new ParseException(0);
+        if (args.size() != o.size()) throw new ParseException(0);
 
-        String[] args = new String[values.size()];
-        values.toArray(args);
         return args;
     }
 }

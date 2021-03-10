@@ -7,11 +7,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Main {
-    public static LinkedHashSet<Product> collection = new LinkedHashSet<>();
-    public static ArrayList<Organization> organizations = new ArrayList<>();
-    public static Interpreter interpreter = new Interpreter();
+    private static final LinkedHashSet<Product> collection = new LinkedHashSet<>();
+    private static final ArrayList<Organization> organizations = new ArrayList<>();
+    private static final Interpreter interpreter = new Interpreter();
     private static Date date;
-    public static String collectionFile;
+    private static String collectionFile;
 
     public static void main(String[] args) {
         collectionFile = args[0];
@@ -23,5 +23,21 @@ public class Main {
 
     public static Date getDate() {
         return date;
+    }
+
+    public static LinkedHashSet<Product> getCollection() {
+        return collection;
+    }
+
+    public static ArrayList<Organization> getOrganizations() {
+        return organizations;
+    }
+
+    public static Interpreter getInterpreter() {
+        return interpreter;
+    }
+
+    public static String getCollectionFile() {
+        return collectionFile;
     }
 }

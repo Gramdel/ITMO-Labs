@@ -1,55 +1,67 @@
 package commands;
 
 import collection.Product;
-import core.Interpreter;
+
 import java.util.ArrayList;
-import static core.Main.collection;
+import java.util.Collections;
+
+import static core.Main.getCollection;
 
 public class RemoveGreater extends Command{
     public RemoveGreater() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        hasArgs = !Interpreter.stream.equals(System.in);
-        if (rightArg(args)) {
-            if (collection.size() > 0) {
-                int prevSize = collection.size();
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException{
+        if (caller != null) argCount = 11;
+        rightArg(args);
+        if (getCollection().size() > 0) {
+            int prevSize = getCollection().size();
+
+            try {
                 Add add = new Add();
-                add.isCalledByRemover();
-                add.execute(args);
-
-                if(collection.size()>prevSize) {
-                    ArrayList<Product> sortedCollection = new ArrayList<>(collection);
-                    sortedCollection.sort(Product.byIdComparator);
-                    Product product = sortedCollection.get(sortedCollection.size() - 1);
-
-                    RemoveById removeById = new RemoveById();
-                    removeById.isCalledByUpdater();
-                    for (int i = 0; i < sortedCollection.size() - 1; i++) {
-                        if (Product.byPriceComparator.compare(sortedCollection.get(i), product) > 0) {
-                            String[] arg = {sortedCollection.get(i).getId().toString()};
-                            removeById.execute(arg);
-                        }
-                    }
-                    String[] arg = {product.getId().toString()};
-                    removeById.execute(arg);
-                    if (prevSize > collection.size()) {
-                        System.out.println("Элементы успешно удалены!");
-                    } else {
-                        System.out.println("Ничего не удалено.");
-                    }
+                add.hideSuccessMsg();
+                add.hideFailureMsg();
+                if (args.size() > 0) {
+                    add.execute(args, this);
+                } else {
+                    add.execute(args, null);
                 }
-            } else {
-                System.out.println("Коллекция пуста!");
+            } catch (ExecuteException e) {
+                throw new ExecuteException("Удаление из коллекции элементов, цена которых больше цены данного, невозможно из-за ошибок ввода:"+e.getMessage());
             }
+
+            ArrayList<Product> sortedCollection = new ArrayList<>(getCollection());
+            Collections.sort(sortedCollection);
+            Product product = sortedCollection.get(sortedCollection.size() - 1);
+
+            RemoveById removeById = new RemoveById();
+            removeById.hideSuccessMsg();
+            for (int i = 0; i < sortedCollection.size() - 1; i++) {
+                if (Product.byPriceComparator.compare(sortedCollection.get(i), product) > 0) {
+                    ArrayList<String> arg = new ArrayList<>();
+                    arg.add(sortedCollection.get(i).getId().toString());
+                    removeById.execute(arg, null);
+                }
+            }
+            ArrayList<String> arg = new ArrayList<>();
+            arg.add(product.getId().toString());
+            removeById.execute(arg, null);
+
+            if (prevSize > getCollection().size()) {
+                System.out.println("Элементы, цена которых больше цены данного, успешно удалены!");
+            } else {
+                throw new ExecuteException("В коллекции нет элементов, цена которых больше цены данного, ничего не удалено.");
+            }
+        } else {
+            throw new ExecuteException("Т.к. коллекция пуста, невозможно удалить из неё элементы, цена которых больше цены данного.");
         }
     }
 
     @Override
     public String description() {
-        return "Добавляет новый элемент в коллекцию, если его цена превышает наибольшую цену элемента в коллекции." + syntax();
+        return "Удаляет из коллеккции все элементы, цена которых больше цены данного." + syntax();
     }
 
     @Override

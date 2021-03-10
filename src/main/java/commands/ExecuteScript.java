@@ -1,35 +1,34 @@
 package commands;
 
-import core.Interpreter;
-
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Stack;
-import static core.Main.interpreter;
+import static core.Main.getInterpreter;
 
 public class ExecuteScript extends Command {
     private final Stack<String> scripts = new Stack<>();
 
     public ExecuteScript() {
-        super(true);
+        super(1);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            try {
-                BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src/main/resources/" + args[0]));
-                System.out.println("Скрипт из файла " + args[0] + " начинает выполняться...");
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        rightArg(args);
+        try {
+            BufferedInputStream stream = new BufferedInputStream(new FileInputStream(args.get(0)));
+            System.out.println("Скрипт из файла " + args.get(0) + " начинает выполняться...");
 
-                scripts.push(args[0]);
-                interpreter.fromStream(stream);
-                if (Interpreter.stream.equals(System.in)) scripts.clear();
+            scripts.push(args.get(0));
+            getInterpreter().setCaller(this);
+            getInterpreter().fromStream(stream);
+            if (caller == null) scripts.clear();
 
-                System.out.println("Скрипт из файла " + args[0] + " выполнен!");
-            } catch (FileNotFoundException e) {
-                System.out.println("Скрипт с именем " + args[0] + " не существует!");
-            }
+            System.out.println("Скрипт из файла " + args.get(0) + " выполнен!");
+        } catch (FileNotFoundException e) {
+            throw new ExecuteException("Скрипт с именем " + args.get(0) + " не существует!");
         }
     }
 
@@ -44,14 +43,10 @@ public class ExecuteScript extends Command {
     }
 
     @Override
-    protected boolean rightArg(String[] args) {
-        if (super.rightArg(args)) {
-            if (scripts.contains(args[0])) {
-                System.out.println("Скрипт " + args[0] + " вызывает сам себя!");
-            } else {
-                return true;
-            }
+    protected void rightArg(ArrayList<String> args) throws ExecuteException{
+        super.rightArg(args);
+        if (scripts.contains(args.get(0))) {
+            throw new ExecuteException("Скрипт " + args.get(0) + " вызывает сам себя!");
         }
-        return false;
     }
 }

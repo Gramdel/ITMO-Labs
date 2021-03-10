@@ -4,13 +4,13 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 
-import static core.Main.collection;
+import static core.Main.getCollection;
 
 public class Product implements Comparable<Product> {
     private Long id; //Поле не может быть null, Значение поля должно быть больше 0, Значение этого поля должно быть уникальным, Значение этого поля должно генерироваться автоматически
     private final String name; //Поле не может быть null, Строка не может быть пустой
     private final Coordinates coordinates; //Поле не может быть null
-    private final java.time.ZonedDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+    private java.time.ZonedDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
     private final float price; //Значение поля должно быть больше 0
     private final String partNumber; //Значение этого поля должно быть уникальным, Поле не может быть null
     private final Float manufactureCost; //Поле не может быть null
@@ -18,7 +18,7 @@ public class Product implements Comparable<Product> {
     private final Organization manufacturer; //Поле может быть null
 
     public Product(String name, Coordinates coordinates, float price, String partNumber, Float manufactureCost, UnitOfMeasure unitOfMeasure, Organization manufacturer) {
-        this.id = (long) collection.size() + 1;
+        this.id = (long) getCollection().size() + 1;
         this.name = name;
         this.coordinates = coordinates;
         this.creationDate = ZonedDateTime.now();
@@ -72,26 +72,26 @@ public class Product implements Comparable<Product> {
         return manufacturer;
     }
 
+    public ZonedDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(ZonedDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
+
     @Override
     public int compareTo(Product product) {
         return this.creationDate.compareTo(product.creationDate);
     }
 
-    public static Comparator<Product> byIdComparator = new Comparator<Product>() {
-        @Override
-        public int compare(Product p1, Product p2) {
-            if (p1.id.equals(p2.id)) {
-                System.out.println("Что-то пошло не так: у двух продуктов один id!");
-                return 0;
-            }
-            return (p1.id < p2.id) ? -1 : 1;
+    public static Comparator<Product> byIdComparator = (p1, p2) -> {
+        if (p1.id.equals(p2.id)) {
+            System.out.println("Что-то пошло не так: у двух продуктов один id!");
+            return 0;
         }
+        return (p1.id < p2.id) ? -1 : 1;
     };
 
-    public static Comparator<Product> byPriceComparator = new Comparator<Product>() {
-        @Override
-        public int compare(Product p1, Product p2) {
-            return Float.compare(p1.price, p2.price);
-        }
-    };
+    public static Comparator<Product> byPriceComparator = (p1, p2) -> Float.compare(p1.price, p2.price);
 }

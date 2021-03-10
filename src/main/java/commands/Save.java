@@ -1,18 +1,19 @@
 package commands;
 
+import java.util.ArrayList;
+
 import static core.IOUnit.toCSV;
-import static core.Main.collectionFile;
+import static core.Main.getCollectionFile;
 
 public class Save extends Command {
     public Save() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            toCSV(collectionFile);
-        }
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        rightArg(args);
+        toCSV(getCollectionFile());
     }
 
     @Override

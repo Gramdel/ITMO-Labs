@@ -1,16 +1,17 @@
 package commands;
 
+import java.util.ArrayList;
+
 public class Exit extends Command {
     public Exit() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        if (rightArg(args)) {
-            System.out.println("Комманда exit выполнена, программа завершает работу.");
-            System.exit(0);
-        }
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException{
+        rightArg(args);
+        System.out.println("Комманда exit выполнена, программа завершает работу.");
+        System.exit(0);
     }
 
     @Override

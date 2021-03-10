@@ -3,17 +3,14 @@ package commands;
 import collection.Organization;
 import collection.OrganizationType;
 import collection.Product;
-import core.Interpreter;
-import org.json.simple.parser.ParseException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.Stack;
-import static core.IOUnit.parseJson;
-import static core.Main.collection;
+import static core.Main.getCollection;
+import static core.Main.getOrganizations;
 
 public class FilterByManufacturer extends Command {
-    private boolean autoMode = false;
     private final Stack<String> errors = new Stack<>();
 
     private String name;
@@ -22,45 +19,44 @@ public class FilterByManufacturer extends Command {
     private OrganizationType type;
 
     public FilterByManufacturer() {
-        super(false);
+        super(0);
     }
 
     @Override
-    public void execute(String[] args) {
-        hasArgs = !Interpreter.stream.equals(System.in);
-        if (autoMode) {
-            if (checkName(args[0]) & checkAnnualTurnover(args[1]) & checkEmployeesCount(args[2]) & checkType(args[3])) {
-                findOrganization();
-            } else {
-                System.out.println("При описании компании-производителя возникли следующие ошибки ввода:");
-                for (String error : errors)
-                    System.out.println("\t" + error);
-                errors.clear();
-            }
-            autoMode = false;
-        } else if (rightArg(args)) {
-            if (args.length == 1) {
-                try {
-                    FilterByManufacturer filter = new FilterByManufacturer();
-                    filter.setAutoMode();
-                    filter.execute(parseJson(args[0]));
-                } catch (ParseException e) {
-                    System.out.println("В структуре JSON-строки, описывающей компанию-производителя, возникла ошибка.");
+    public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
+        boolean b = caller != null;
+        if (b) argCount = 4;
+        rightArg(args);
+        if (!b) args.addAll(Arrays.asList(new String[4]));
+
+        if (checkName(args.get(0), b) & checkAnnualTurnover(args.get(1), b) &
+                checkEmployeesCount(args.get(2), b) & checkType(args.get(3), b)) {
+
+            Organization manufacturer = new Organization(name, annualTurnover, employeesCount, type);
+
+            if (getOrganizations().contains(manufacturer)) {
+                System.out.println("Элементы коллекции с такой компанией-производителем:");
+                ArrayList<Product> sortedCollection = new ArrayList<>(getCollection());
+                sortedCollection.sort(Product.byIdComparator);
+                for (Product product : sortedCollection) {
+                    if (product.getManufacturer().equals(manufacturer)) System.out.println(product);
                 }
             } else {
-                fieldSetter("Введите название компании-производителя:", "checkName");
-                fieldSetter("Введите годовой оборот компании-производителя (пустая строка или целое положительное число):", "checkAnnualTurnover");
-                fieldSetter("Введите количество сотрудников компании-производителя (пустая строка или целое положительное число):", "checkEmployeesCount");
-                fieldSetter("Введите тип компании-производителя (пустая строка, " + OrganizationType.valueList() + "):", "checkType");
-
-                findOrganization();
+                throw new ExecuteException("В коллекции нет ни одного элемента с такой компанией-производителем!");
             }
+        } else {
+            StringBuilder s = new StringBuilder();
+            s.append("Невозможно вывести элементы с такой компанией-производителем из-за ошибок ввода:");
+            for (String error : errors)
+                s.append("\n\t").append(error);
+            errors.clear();
+            throw new ExecuteException(s.toString());
         }
     }
 
     @Override
     public String description() {
-        return "Выводит элементы коллекции с manufacturer эквивалентным заданному." + syntax();
+        return "Выводит элементы коллекции с определённой компанией-производителем." + syntax();
     }
 
     @Override
@@ -68,44 +64,16 @@ public class FilterByManufacturer extends Command {
         return " Синтаксис: filter_by_manufacturer \n\t\t(В скриптах - filter_by_manufacturer {element}, где {element} - JSON-строка)";
     }
 
-    private void findOrganization() {
-        Stack<Product> elements = new Stack<>();
-        Organization m2 = new Organization(name, annualTurnover, employeesCount, type);
-
-        for (Product product : collection) {
-            Organization m1 = product.getManufacturer();
-            if (m1.equals(m2)) {
-                elements.push(product);
+    private boolean checkName(String name, boolean b){
+        if (!b) {
+            System.out.println("Введите название компании-производителя:");
+            Scanner in = new Scanner(System.in);
+            name = in.nextLine();
+            if(!checkName(name,true)) {
+                System.out.println(errors.peek());
+                checkName(name,false);
             }
-        }
-
-        if (!elements.isEmpty()) {
-            System.out.println("Элементы коллекции с таким manufacturer:");
-            elements.sort(Product.byIdComparator);
-            for (Product product : elements)
-                System.out.println(product);
-        } else {
-            System.out.println("В коллекции нет ни одного элемента с manufacturer " + m2 + "!");
-        }
-    }
-
-    private void fieldSetter(String message, String methodName) {
-        Scanner in = new Scanner(System.in);
-        try {
-            Method method = this.getClass().getDeclaredMethod(methodName, String.class);
-
-            do {
-                System.out.println(message);
-                if (errors.size() > 0) System.out.println(errors.peek());
-                errors.clear();
-            } while (!(Boolean) method.invoke(this, in.nextLine()));
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            System.out.println("Товарищ программист, что-то не так с методом " + methodName + "!");
-        }
-    }
-
-    private boolean checkName(String name) {
-        if (name.matches("\\s*")) {
+        } else if (name.matches("\\s*")){
             errors.push("Неправильный ввод названия компании-производителя! Оно не может быть пустой строкой.");
             return false;
         }
@@ -113,11 +81,20 @@ public class FilterByManufacturer extends Command {
         return true;
     }
 
-    private boolean checkAnnualTurnover(String annualTurnover) {
-        if (!annualTurnover.equals("")) {
+    private boolean checkAnnualTurnover(String annualTurnover, boolean b){
+        if (!b) {
+            System.out.println("Введите годовой оборот компании-производителя (пустая строка или целое положительное число):");
+            Scanner in = new Scanner(System.in);
+            annualTurnover = in.nextLine();
+            if(!checkAnnualTurnover(annualTurnover,true)) {
+                System.out.println(errors.peek());
+                checkAnnualTurnover(annualTurnover,false);
+            }
+        } else if (!annualTurnover.equals("")){
             try {
                 this.annualTurnover = Long.parseLong(annualTurnover);
-            } catch (NumberFormatException e) {
+                if (this.annualTurnover <= 0) throw new NumberFormatException();
+            } catch(NumberFormatException e) {
                 errors.push("Неправильный ввод ежегодного оборота компании-производителя! Требуемый формат: пустая строка или целое положительное число.");
                 return false;
             }
@@ -127,11 +104,20 @@ public class FilterByManufacturer extends Command {
         return true;
     }
 
-    private boolean checkEmployeesCount(String employeesCount) {
-        if (!employeesCount.equals("")) {
+    private boolean checkEmployeesCount(String employeesCount, boolean b){
+        if (!b) {
+            System.out.println("Введите количество сотрудников компании-производителя (пустая строка или целое положительное число):");
+            Scanner in = new Scanner(System.in);
+            employeesCount = in.nextLine();
+            if(!checkEmployeesCount(employeesCount,true)) {
+                System.out.println(errors.peek());
+                checkEmployeesCount(employeesCount,false);
+            }
+        } else if (!employeesCount.equals("")) {
             try {
                 this.employeesCount = Long.parseLong(employeesCount);
-            } catch (NumberFormatException e) {
+                if (this.employeesCount <= 0) throw new NumberFormatException();
+            } catch(NumberFormatException e) {
                 errors.push("Неправильный ввод количества сотрудников компании-производителя! Требуемый формат: пустая строка или целое положительное число.");
                 return false;
             }
@@ -141,12 +127,20 @@ public class FilterByManufacturer extends Command {
         return true;
     }
 
-    private boolean checkType(String type) {
-        if (!type.equals("")) {
+    private boolean checkType(String type, boolean b){
+        if (!b) {
+            System.out.println("Введите тип компании-производителя (пустая строка, "+OrganizationType.valueList()+"):");
+            Scanner in = new Scanner(System.in);
+            type = in.nextLine();
+            if(!checkType(type,true)) {
+                System.out.println(errors.peek());
+                checkType(type,false);
+            }
+        } else if (!type.equals("")) {
             try {
                 this.type = OrganizationType.fromString(type);
             } catch (IllegalArgumentException e) {
-                String s = "Неправильный ввод типа компании-производителя! Возможные варианты ввода: пустая строка, " + OrganizationType.valueList() + ".";
+                String s = "Неправильный ввод типа компании-производителя! Возможные варианты ввода: пустая строка, "+OrganizationType.valueList()+".";
                 errors.push(s);
                 return false;
             }
@@ -154,9 +148,5 @@ public class FilterByManufacturer extends Command {
             this.type = null;
         }
         return true;
-    }
-
-    public void setAutoMode() {
-        autoMode = true;
     }
 }
