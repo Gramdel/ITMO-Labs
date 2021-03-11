@@ -24,7 +24,7 @@ public class Update extends Command {
             Add add = new Add();
             add.hideSuccessMsg();
             add.hideFailureMsg();
-            add.setId(receivedProduct.getId());
+            add.setId(receivedProduct.getId().toString());
             add.setCreationDate(receivedProduct.getCreationDate());
             args.remove(0);
             if (args.size()>0) {

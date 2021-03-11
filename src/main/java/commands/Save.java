@@ -1,9 +1,7 @@
 package commands;
 
+import core.ParseUnit;
 import java.util.ArrayList;
-
-import static core.IOUnit.toCSV;
-import static core.Main.getCollectionFile;
 
 public class Save extends Command {
     public Save() {
@@ -13,7 +11,7 @@ public class Save extends Command {
     @Override
     public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
         rightArg(args);
-        toCSV(getCollectionFile());
+        ParseUnit.toCSV();
     }
 
     @Override

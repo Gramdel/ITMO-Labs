@@ -11,12 +11,12 @@ public class Main {
     private static final ArrayList<Organization> organizations = new ArrayList<>();
     private static final Interpreter interpreter = new Interpreter();
     private static Date date;
-    private static String collectionFile;
+    private static String[] args;
 
     public static void main(String[] args) {
-        collectionFile = args[0];
+        Main.args = args;
         date = new Date();
-        IOUnit.fromCSV(args[0]);
+        ParseUnit.fromCSV();
         System.out.println("Вас приветствует программа для управления коллекцией продуктов. Для получения списка команд введите help. \n" + "Введите команду:");
         interpreter.fromStream(System.in);
     }
@@ -37,7 +37,7 @@ public class Main {
         return interpreter;
     }
 
-    public static String getCollectionFile() {
-        return collectionFile;
+    public static String[] getArgs() {
+        return args;
     }
 }

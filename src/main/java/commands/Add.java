@@ -16,7 +16,7 @@ public class Add extends Command {
 
     private final Stack<String> errors = new Stack<>();
 
-    private Long id = null;
+    private String id = null;
     private String name;
     private Double x; //coordinates
     private Long y; //coordinates
@@ -41,17 +41,17 @@ public class Add extends Command {
         rightArg(args);
         if (!b) args.addAll(Arrays.asList(new String[11]));
 
-        if (checkName(args.get(0), b) & checkCoordinateX(args.get(1), b) & checkCoordinateY(args.get(2), b) &
+        if (checkId() & checkName(args.get(0), b) & checkCoordinateX(args.get(1), b) & checkCoordinateY(args.get(2), b) &
                 checkPrice(args.get(3), b) & checkPartNumber(args.get(4), b) & checkManufactureCost(args.get(5), b) &
                 checkUnitOfMeasure(args.get(6), b) & checkName2(args.get(7), b) & checkAnnualTurnover(args.get(8), b) &
                 checkEmployeesCount(args.get(9), b) & checkType(args.get(10), b)) {
 
             Product product = new Product(name, new Coordinates(x, y), price, partNumber, manufactureCost,
                     unitOfMeasure, addOrganization());
-            if (id != null) product.setId(id);
+            if (id != null) product.setId(Long.parseLong(id));
             if (creationDate != null) product.setCreationDate(creationDate);
-            getCollection().add(product);
 
+            getCollection().add(product);
             if (successMsg) System.out.println("Элемент успешно добавлен в коллекцию!");
         } else {
             StringBuilder s = new StringBuilder();
@@ -314,7 +314,25 @@ public class Add extends Command {
         return true;
     }
 
-    public void setId(Long id) {
+    private boolean checkId() {
+        if (id != null) {
+            for (Product product : getCollection()) {
+                if (product.getId().toString().equals(id)) {
+                    errors.push("Неправильный ввод id! Оно должно быть уникальным!");
+                    return false;
+                }
+            }
+            try {
+                if (Long.parseLong(id) <= 0) throw new NumberFormatException();
+            } catch(NumberFormatException e) {
+                errors.push("Неправильный ввод id! Требуемый формат: целое положительное число.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setId(String id) {
         this.id = id;
     }
 

@@ -18,7 +18,7 @@ public class Product implements Comparable<Product> {
     private final Organization manufacturer; //Поле может быть null
 
     public Product(String name, Coordinates coordinates, float price, String partNumber, Float manufactureCost, UnitOfMeasure unitOfMeasure, Organization manufacturer) {
-        this.id = (long) getCollection().size() + 1;
+        this.id = createId();
         this.name = name;
         this.coordinates = coordinates;
         this.creationDate = ZonedDateTime.now();
@@ -45,7 +45,7 @@ public class Product implements Comparable<Product> {
     }
 
     public String toStringForCSV() {
-        return name + "," + coordinates.toStringForCSV() + "," + price + "," + partNumber + "," + manufactureCost + "," + unitOfMeasure + "," + manufacturer.toStringForCSV();
+        return id + "," + name + "," + coordinates.toStringForCSV() + "," + price + "," + partNumber + "," + manufactureCost + "," + unitOfMeasure + "," + manufacturer.toStringForCSV();
     }
 
     public String getPartNumber() {
@@ -94,4 +94,20 @@ public class Product implements Comparable<Product> {
     };
 
     public static Comparator<Product> byPriceComparator = (p1, p2) -> Float.compare(p1.price, p2.price);
+
+    private Long createId() {
+        Long id = 1L;
+        boolean isUnique;
+        do {
+            isUnique = true;
+            for (Product product : getCollection()) {
+                if (product.getId().equals(id)) {
+                    isUnique = false;
+                    id++;
+                    break;
+                }
+            }
+        } while (!isUnique);
+        return id;
+    }
 }
