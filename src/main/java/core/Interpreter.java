@@ -15,7 +15,7 @@ public class Interpreter {
     private final LinkedList<String> history = new LinkedList<>();
     private Command caller = null;
 
-    public Interpreter() {
+    {
         commands.put(new Add(), "add");
         commands.put(new Clear(), "clear");
         commands.put(new Exit(), "exit");
