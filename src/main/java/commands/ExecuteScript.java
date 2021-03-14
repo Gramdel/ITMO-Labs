@@ -3,6 +3,8 @@ package commands;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Stack;
 import static core.Main.getInterpreter;
@@ -17,18 +19,28 @@ public class ExecuteScript extends Command {
     @Override
     public void execute(ArrayList<String> args, Command caller) throws ExecuteException {
         rightArg(args);
-        try {
-            BufferedInputStream stream = new BufferedInputStream(new FileInputStream(args.get(0)));
-            System.out.println("Скрипт из файла " + args.get(0) + " начинает выполняться...");
+        if (!Files.exists(Paths.get(args.get(0)))) {
+            throw new ExecuteException("Скрипта с именем " + args.get(0) + " не существует!");
+        } else if (Files.isDirectory(Paths.get(args.get(0)))) {
+            throw new ExecuteException("Скрипт с именем " + args.get(0) + " не выполнен, так как в качестве исполняемого файла была передана директория.");
+        } else if (!Files.isRegularFile(Paths.get(args.get(0)))) {
+            throw new ExecuteException("Скрипт с именем " + args.get(0) + " не выполнен, так как в качестве исполняемого файла был передан специальный файл.");
+        } else if (Files.isReadable(Paths.get(args.get(0)))) {
+            try {
+                BufferedInputStream stream = new BufferedInputStream(new FileInputStream(args.get(0)));
+                System.out.println("Скрипт из файла " + args.get(0) + " начинает выполняться...");
 
-            scripts.push(args.get(0));
-            getInterpreter().setCaller(this);
-            getInterpreter().fromStream(stream);
-            if (caller == null) scripts.clear();
+                scripts.push(args.get(0));
+                getInterpreter().setCaller(this);
+                getInterpreter().fromStream(stream);
+                if (caller == null) scripts.clear();
 
-            System.out.println("Скрипт из файла " + args.get(0) + " выполнен!");
-        } catch (FileNotFoundException e) {
-            throw new ExecuteException("Скрипт с именем " + args.get(0) + " не существует!");
+                System.out.println("Скрипт из файла " + args.get(0) + " выполнен!");
+            } catch (FileNotFoundException e) {
+                throw new ExecuteException("Скрипта с именем " + args.get(0) + " не существует!");
+            }
+        } else {
+            throw new ExecuteException("Скрипт с именем " + args.get(0) + " не выполнен, так как у исполняемого файла нет прав на чтение.");
         }
     }
 
